@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+html {
+  scroll-snap-type: y mandatory;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #0a0a0a;
+  color: #e5e5e5;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* ── Hero ────────────────────────────────────── */
+.hero {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Transition Slide ────────────────────────── */
+.transition-slide {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #0a0a0a;
+}
+
+.transition-label {
+  font-size: 8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  user-select: none;
+}
+
+.transition-sub {
+  font-size: 0.875rem;
+  color: #444;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Section Frame (100vh snap target) ────────── */
+.section-frame {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  margin: 0 14%;
+  position: relative;
+}
+
+/* ── Isolated scrollable subsections ────────────
+   No overscroll-behavior: contain — so when the user
+   reaches the last subsection, the wheel chains into
+   the page scroll and continues to the next slide. */
+.section-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.section-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Each subsection is exactly one container height, so
+   snap locks firmly to each one — no getting stuck midway. */
+.subsection {
+  flex-shrink: 0;
+  height: 100%;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  padding: 48px 0;
+}
+
+.subsection-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.subsection-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Subsection slider (left of frame) ────────── */
+.subsection-slider {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Footer ──────────────────────────────────── */
+.footer {
+  height: 40vh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 0.875rem;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .section-frame {
+    margin: 0 6%;
+  }
+
+  .subsection {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 0;
+  }
+
+  .subsection-image {
+    height: 40vh;
+  }
+
+  .subsection-slider {
+    left: -12px;
+    gap: 8px;
+  }
+
+  .transition-label {
+    font-size: 5rem;
+  }
+}

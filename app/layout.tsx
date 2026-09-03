@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Takomo",
-  description: "Takomo",
+  description: "Scroll-pinned layout inspired by tigerstyle.dev",
 };
 
 export default function RootLayout({
