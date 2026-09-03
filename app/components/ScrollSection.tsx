@@ -131,8 +131,8 @@ function SubSlide({
         <span className="text-xs font-medium tracking-widest text-neutral-500 uppercase">
           {sectionLabel} / {index + 1}
         </span>
-        <h2 className="text-3xl font-bold text-white">{slide.title}</h2>
-        <p className="text-neutral-400 text-lg leading-relaxed max-w-md">
+        <h2 className="text-3xl font-bold text-white max-md:text-2xl">{slide.title}</h2>
+        <p className="text-neutral-400 text-lg leading-relaxed max-w-md max-md:text-base max-md:max-w-full">
           {slide.text}
         </p>
       </div>
@@ -140,7 +140,7 @@ function SubSlide({
         <img
           src={`https://placecats.com/${slide.imageW}/${slide.imageH}`}
           alt={`${slide.title} placeholder`}
-          className="max-w-full max-h-[50vh] rounded-xl object-cover"
+          className="max-w-full max-h-[50vh] rounded-xl object-cover max-md:max-h-[32vh]"
         />
       </div>
     </div>
@@ -152,17 +152,22 @@ function SectionBlock({ section }: { section: SectionDef }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollElRef = useRef<HTMLDivElement>(null);
 
-  // Track the subsection whose center is nearest the container center
   useEffect(() => {
     const el = scrollElRef.current;
     if (!el) return;
 
-    const onScroll = () => {
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    let isSnapping = false;
+
+    const getSubEls = () =>
+      Array.from(el.querySelectorAll<HTMLElement>("[data-sub]"));
+
+    const getNearestIndex = () => {
       const containerRect = el.getBoundingClientRect();
       const mid = containerRect.top + containerRect.height / 2;
+      const subEls = getSubEls();
       let best = 0;
       let bestDist = Infinity;
-      const subEls = el.querySelectorAll<HTMLElement>("[data-sub]");
       subEls.forEach((subEl, i) => {
         const rect = subEl.getBoundingClientRect();
         const center = rect.top + rect.height / 2;
@@ -172,12 +177,52 @@ function SectionBlock({ section }: { section: SectionDef }) {
           best = i;
         }
       });
-      setActiveIndex(best);
+      return best;
     };
 
-    onScroll();
+    const updateSlider = () => {
+      setActiveIndex(getNearestIndex());
+    };
+
+    const snapToNearest = () => {
+      if (isSnapping) return;
+
+      const subEls = getSubEls();
+      if (!subEls.length) return;
+
+      const best = getNearestIndex();
+      const containerRect = el.getBoundingClientRect();
+      const mid = containerRect.top + containerRect.height / 2;
+      const bestRect = subEls[best].getBoundingClientRect();
+      const bestCenter = bestRect.top + bestRect.height / 2;
+      const error = Math.abs(bestCenter - mid);
+
+      // Already snapped — nothing to do
+      if (error < 2) return;
+
+      // Snap into place
+      isSnapping = true;
+      setActiveIndex(best);
+      el.scrollTo({ top: subEls[best].offsetTop, behavior: "smooth" });
+      setTimeout(() => {
+        isSnapping = false;
+      }, 400);
+    };
+
+    const onScroll = () => {
+      updateSlider();
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(snapToNearest, 120);
+    };
+
+    // Ensure we start snapped to the first subsection
+    updateSlider();
+
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      clearTimeout(scrollTimer);
+    };
   }, []);
 
   return (

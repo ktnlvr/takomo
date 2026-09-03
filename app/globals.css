@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
+:root {
+  --vh: 1vh;
+  --nav-height: 0px;
+}
+
 html {
   scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 }
 
 html,
@@ -15,22 +21,31 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fallback: use 100dvh where supported for accurate mobile height */
+.hero,
+.transition-slide,
+.section-frame {
+  height: 100vh;
+  height: 100dvh;
 }
 
 /* ── Hero ────────────────────────────────────── */
 .hero {
-  height: 100vh;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding: 24px;
 }
 
 /* ── Transition Slide ────────────────────────── */
 .transition-slide {
-  height: 100vh;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
@@ -41,7 +56,7 @@ body {
 }
 
 .transition-label {
-  font-size: 8rem;
+  font-size: clamp(4rem, 12vw, 8rem);
   font-weight: 800;
   color: #1a1a1a;
   letter-spacing: -0.04em;
@@ -56,39 +71,41 @@ body {
   text-transform: uppercase;
 }
 
-/* ── Section Frame (100vh snap target) ────────── */
+/* ── Section Frame (snap target) ─────────────── */
 .section-frame {
-  height: 100vh;
   scroll-snap-align: start;
   display: flex;
   margin: 0 14%;
   position: relative;
+  overflow: hidden;
 }
 
-/* ── Isolated scrollable subsections ────────────
+/* ── Isolated scrollable subsections ───────────
+   No CSS snap here — JS enforces snapping instead.
    No overscroll-behavior: contain — so when the user
-   reaches the last subsection, the wheel chains into
-   the page scroll and continues to the next slide. */
+   reaches the last subsection, the scroll chains into
+   the page and continues to the next slide. */
 .section-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
   display: flex;
   flex-direction: column;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  position: relative;
 }
 
 .section-scroll::-webkit-scrollbar {
   display: none;
 }
 
-/* Each subsection is exactly one container height, so
-   snap locks firmly to each one — no getting stuck midway. */
+/* Each subsection is exactly one container height.
+   JS snaps to the nearest one on every scroll-end. */
 .subsection {
   flex-shrink: 0;
   height: 100%;
-  scroll-snap-align: start;
   display: flex;
   align-items: stretch;
   gap: 24px;
@@ -101,6 +118,7 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 16px;
+  min-height: 0;
 }
 
 .subsection-image {
@@ -108,6 +126,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 0;
 }
 
 /* ── Subsection slider (left of frame) ────────── */
@@ -119,11 +138,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  z-index: 10;
 }
 
 /* ── Footer ──────────────────────────────────── */
 .footer {
   height: 40vh;
+  height: 40dvh;
   scroll-snap-align: start;
   display: flex;
   align-items: center;
@@ -132,28 +153,62 @@ body {
   font-size: 0.875rem;
 }
 
-/* ── Responsive ──────────────────────────────── */
+/* ── Mobile / tablet (≤ 768px) ───────────────────
+   Stack: image on top, text below. The whole page and
+   inner section both scroll naturally with momentum. */
 @media (max-width: 768px) {
   .section-frame {
     margin: 0 6%;
   }
 
   .subsection {
-    flex-direction: column;
-    gap: 16px;
-    padding: 24px 0;
+    flex-direction: column-reverse; /* image (2nd child) goes on top */
+    align-items: stretch;
+    gap: 8px;
+    padding: 16px 0;
+  }
+
+  .subsection-text {
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .subsection-text p {
+    max-width: 90%;
+    font-size: 1rem;
   }
 
   .subsection-image {
-    height: 40vh;
+    flex: 0 0 34vh;
+    height: 34vh;
+    align-items: center;
+    justify-content: center;
   }
 
   .subsection-slider {
-    left: -12px;
+    left: -10px;
     gap: 8px;
   }
 
+  .footer {
+    padding: 24px;
+    text-align: center;
+  }
+}
+
+/* ── Small phones (≤ 480px) ───────────────────── */
+@media (max-width: 480px) {
   .transition-label {
-    font-size: 5rem;
+    font-size: 4rem;
+  }
+
+  .hero h1 {
+    font-size: 2.75rem;
+  }
+
+  .hero p {
+    font-size: 1.05rem;
   }
 }
