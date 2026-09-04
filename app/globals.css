@@ -1,41 +1,30 @@
 @import "tailwindcss";
 
-:root {
-  --vh: 1vh;
-  --nav-height: 0px;
-}
-
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-}
-
 html,
 body {
   margin: 0;
   padding: 0;
   background: #0a0a0a;
   color: #e5e5e5;
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  /* Smooth momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-/* Fallback: use 100dvh where supported for accurate mobile height */
-.hero,
-.transition-slide,
-.section-frame {
+/* Lenis smooth scroll — disable browser default snap,
+   lenis/snap handles all snapping. */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+/* ── Every visible screen is a "slide" ─────────── */
+.slide {
   height: 100vh;
   height: 100dvh;
+  position: relative;
+  overflow: hidden;
 }
 
-/* ── Hero ────────────────────────────────────── */
+/* ── Hero ──────────────────────────────────────── */
 .hero {
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -44,15 +33,13 @@ body {
   padding: 24px;
 }
 
-/* ── Transition Slide ────────────────────────── */
+/* ── Transition Slide ──────────────────────────── */
 .transition-slide {
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #0a0a0a;
 }
 
 .transition-label {
@@ -71,45 +58,12 @@ body {
   text-transform: uppercase;
 }
 
-/* ── Section Frame (snap target) ─────────────── */
-.section-frame {
-  scroll-snap-align: start;
-  display: flex;
-  margin: 0 14%;
-  position: relative;
-  overflow: hidden;
-}
-
-/* ── Isolated scrollable subsections ───────────
-   No CSS snap here — JS enforces snapping instead.
-   No overscroll-behavior: contain — so when the user
-   reaches the last subsection, the scroll chains into
-   the page and continues to the next slide. */
-.section-scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: auto;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.section-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* Each subsection is exactly one container height.
-   JS snaps to the nearest one on every scroll-end. */
-.subsection {
-  flex-shrink: 0;
-  height: 100%;
+/* ── Subsection slide (text + image) ───────────── */
+.subsection-slide {
   display: flex;
   align-items: stretch;
   gap: 24px;
-  padding: 48px 0;
+  padding: 48px 14%;
 }
 
 .subsection-text {
@@ -129,10 +83,10 @@ body {
   min-height: 0;
 }
 
-/* ── Subsection slider (left of frame) ────────── */
-.subsection-slider {
+/* ── Slider dots (left side of each subsection) ── */
+.slide-dots {
   position: absolute;
-  left: -24px;
+  left: calc(14% - 24px);
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -141,11 +95,23 @@ body {
   z-index: 10;
 }
 
-/* ── Footer ──────────────────────────────────── */
+.slide-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #333;
+  transition: all 0.3s ease;
+}
+
+.slide-dot--active {
+  background: #fff;
+  transform: scale(1.6);
+}
+
+/* ── Footer ────────────────────────────────────── */
 .footer {
   height: 40vh;
   height: 40dvh;
-  scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,19 +119,13 @@ body {
   font-size: 0.875rem;
 }
 
-/* ── Mobile / tablet (≤ 768px) ───────────────────
-   Stack: image on top, text below. The whole page and
-   inner section both scroll naturally with momentum. */
+/* ── Mobile / tablet (≤ 768px) ─────────────────── */
 @media (max-width: 768px) {
-  .section-frame {
-    margin: 0 6%;
-  }
-
-  .subsection {
-    flex-direction: column-reverse; /* image (2nd child) goes on top */
+  .subsection-slide {
+    flex-direction: column-reverse;
     align-items: stretch;
     gap: 8px;
-    padding: 16px 0;
+    padding: 16px 6%;
   }
 
   .subsection-text {
@@ -187,8 +147,8 @@ body {
     justify-content: center;
   }
 
-  .subsection-slider {
-    left: -10px;
+  .slide-dots {
+    left: 6%;
     gap: 8px;
   }
 
