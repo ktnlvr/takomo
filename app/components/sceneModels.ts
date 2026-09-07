@@ -10,10 +10,10 @@ import { chromeMaterial, tungstenMaterial } from "./brand";
  */
 export function makeMetaballs(size = 4.2, resolution = 44) {
   const mat = new THREE.MeshPhysicalMaterial({
-    color: 0xb4bcc8,
+    color: 0x99a1ad,
     metalness: 1,
     roughness: 0.4,
-    envMapIntensity: 1.1,
+    envMapIntensity: 0.85,
   });
   const group = new THREE.Group();
   const mc = new MarchingCubes(resolution, mat, false, false, 30000);
