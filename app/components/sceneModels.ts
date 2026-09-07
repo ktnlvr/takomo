@@ -10,12 +10,10 @@ import { chromeMaterial, tungstenMaterial } from "./brand";
  */
 export function makeMetaballs(size = 4.2, resolution = 44) {
   const mat = new THREE.MeshPhysicalMaterial({
-    color: 0xc8d2e2,
+    color: 0xb4bcc8,
     metalness: 1,
-    roughness: 0.05,
-    envMapIntensity: 2.0,
-    clearcoat: 1,
-    clearcoatRoughness: 0.08,
+    roughness: 0.4,
+    envMapIntensity: 1.1,
   });
   const group = new THREE.Group();
   const mc = new MarchingCubes(resolution, mat, false, false, 30000);
@@ -111,8 +109,8 @@ export function makeDevBoard() {
   const steel = new THREE.MeshPhysicalMaterial({
     color: 0x6b7484,
     metalness: 1,
-    roughness: 0.1,
-    envMapIntensity: 1.7,
+    roughness: 0.45,
+    envMapIntensity: 1.0,
   });
 
   // PCB

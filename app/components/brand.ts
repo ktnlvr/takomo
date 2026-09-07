@@ -11,25 +11,24 @@ export function makeEnvironment(renderer: THREE.WebGLRenderer) {
   return env;
 }
 
-export function chromeMaterial(color = 0xccd5e4) {
+// solidified tin: metallic but matte, soft wide highlights, no mirror gloss
+export function chromeMaterial(color = 0xb8bfc9) {
   return new THREE.MeshPhysicalMaterial({
     color,
     metalness: 1,
-    roughness: 0.045,
-    envMapIntensity: 2.0,
-    clearcoat: 1,
-    clearcoatRoughness: 0.06,
+    roughness: 0.42,
+    envMapIntensity: 1.1,
+    clearcoat: 0.15,
+    clearcoatRoughness: 0.5,
   });
 }
 
 export function tungstenMaterial() {
   return new THREE.MeshPhysicalMaterial({
-    color: 0x9099a8,
+    color: 0x8b93a0,
     metalness: 1,
-    roughness: 0.16,
-    envMapIntensity: 1.6,
-    clearcoat: 0.6,
-    clearcoatRoughness: 0.12,
+    roughness: 0.48,
+    envMapIntensity: 1.0,
   });
 }
 
