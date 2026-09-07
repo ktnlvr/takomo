@@ -16,10 +16,10 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 1 }}
         >
-          A forge for hardware at Aalto · 2026
+          Aalto Hardware Consortium · 2026
         </motion.p>
         <motion.h1
-          className="hero-title"
+          className="hero-title chrome-text"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
@@ -32,7 +32,7 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.1, duration: 1 }}
         >
-          From atoms to impact. A makerspace for hardware development.
+          A makerspace for hardware development. Built and maintained by a hardware consortium.
         </motion.p>
       </div>
       <motion.div

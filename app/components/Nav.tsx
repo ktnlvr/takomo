@@ -5,10 +5,10 @@ export default function Nav() {
         TAKOMO
       </a>
       <div className="links">
-        <a href="#thesis">Thesis</a>
-        <a href="#communities">Communities</a>
-        <a href="#space">The Space</a>
-        <a href="#plan">Plan</a>
+        <a href="#collective">Collective</a>
+        <a href="#shift">Shift</a>
+        <a href="#model">Model</a>
+        <a href="#space">Space</a>
         <a href="#contact">Contact</a>
       </div>
     </nav>
