@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Montserrat, Doppio_One, Overpass } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const base = Montserrat({ subsets: ["latin"], variable: "--font-base" });
+const doppio = Doppio_One({ subsets: ["latin"], weight: "400", variable: "--font-mono" });
+const display = Overpass({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "TAKOMO — From atoms to impact",
@@ -26,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${mono.variable}`}>
+      <body className={`${base.variable} ${doppio.variable} ${display.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

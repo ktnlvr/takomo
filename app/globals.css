@@ -29,7 +29,7 @@ body {
      the fixed z-index:-1 field and hide it entirely */
   background: transparent;
   color: var(--text);
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: var(--font-base), Montserrat, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -39,7 +39,7 @@ body {
 }
 
 .mono {
-  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  font-family: var(--font-mono), "Doppio One", sans-serif;
 }
 
 /* ── Kicker: mono uppercase section label, tigerstyle-like ── */
@@ -194,6 +194,7 @@ nav.topnav .links a:hover::before {
 
 /* ── Headlines ─────────────────────────────────── */
 .headline {
+  font-family: var(--font-display), Overpass, sans-serif;
   font-size: clamp(1.9rem, 4.2vw, 3.4rem);
   font-weight: 800;
   line-height: 1.12;
@@ -236,6 +237,7 @@ nav.topnav .links a:hover::before {
 }
 
 .hero-title {
+  font-family: var(--font-display), Overpass, sans-serif;
   font-size: clamp(3.4rem, 14vw, 11rem);
   font-weight: 900;
   letter-spacing: 0.04em;
@@ -289,6 +291,7 @@ nav.topnav .links a:hover::before {
 
 /* ── Shiny / liquid-metal text ─────────────────── */
 .chrome-text {
+  font-family: var(--font-display), Overpass, sans-serif;
   background: linear-gradient(
     115deg,
     #6a7387 0%,
@@ -368,6 +371,7 @@ nav.topnav .links a:hover::before {
 
 /* ── Stats ─────────────────────────────────────── */
 .stat-value {
+  font-family: var(--font-display), Overpass, sans-serif;
   font-size: clamp(2.2rem, 4.5vw, 3.4rem);
   font-weight: 800;
   color: #fff;
@@ -658,6 +662,83 @@ nav.topnav .links a:hover::before {
   }
 }
 
+/* ── Comparison table (the bar) ────────────────── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(240px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.compare-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-card);
+}
+
+.compare-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.compare-table th {
+  text-align: left;
+  font-family: var(--font-mono), sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.compare-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  line-height: 1.5;
+  vertical-align: top;
+}
+
+.compare-table td:first-child {
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.compare-table tr.us td {
+  background: rgba(163, 29, 69, 0.16);
+  color: #e8dfe4;
+}
+
+.compare-table tr.us td:first-child {
+  color: #fff;
+}
+
+.conclusions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conclusions h3 {
+  font-family: var(--font-mono), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Timeline ──────────────────────────────────── */
 .timeline-row {
   display: grid;
@@ -782,6 +863,7 @@ nav.topnav .links a:hover::before {
 }
 
 .chapter-item h3 {
+  font-family: var(--font-display), Overpass, sans-serif;
   font-size: clamp(1.5rem, 2.6vw, 2.2rem);
   font-weight: 800;
   color: #fff;

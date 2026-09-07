@@ -129,30 +129,62 @@ export function DaySlide() {
   );
 }
 
-/* ── The bar ───────────────────────────────────── */
+/* ── The bar: comparison table ─────────────────── */
 export function BarSlide() {
-  const rows = [
+  const cols = ["", "Builders", "Industry backing", "Outputs", "Running since"];
+  const rows: { org: string; cells: string[]; us?: boolean }[] = [
     {
-      who: "MIT",
-      what: "35+ makerspaces. Media Lab funds 25% of a $66–80M budget from 34 corporate members. Fab labs began here.",
+      org: "MIT",
+      cells: [
+        "35+ makerspaces (Project Manus)",
+        "34 corporate members fund ~25% of the Media Lab's $66\u201380M budget",
+        "Fab labs began here",
+        "Decades",
+      ],
     },
     {
-      who: "ETH Zurich",
-      what: "Student Project House: 3,000+ students built their ideas since 2016; spinoffs; pro-bono experts and fellowships.",
+      org: "ETH Zurich",
+      cells: [
+        "3,000+ students through the Student Project House",
+        "Pro-bono experts and fellowships",
+        "Spinoffs; student ideas built since 2016",
+        "2016",
+      ],
     },
     {
-      who: "Newlab",
-      what: "400+ member startups raised $4B VC, $3B exits, $17B+ valuation. 264 days quicker to a series A.",
+      org: "Newlab",
+      cells: [
+        "400+ member startups",
+        "Largely self-funded via corporate and government projects",
+        "$4B VC raised, $3B exits, $17B+ valuation, 264 days quicker to a series A",
+        "2016",
+      ],
     },
     {
-      who: "Dream Hall · TU Delft",
-      what: "13 student teams, 400+ students building rockets, race cars, and robots. 25+ years of student engineering.",
+      org: "Dream Hall · TU Delft",
+      cells: [
+        "13 student teams, 400+ students",
+        "Dedicated workshops, equipment, technical support",
+        "Rockets, race cars, robots and other hardware",
+        "25+ years",
+      ],
     },
     {
-      who: "TAKOMO",
-      what: "The Nordic forge built to reach that tier, starting from a running community.",
+      org: "TAKOMO",
+      cells: [
+        "1,000+ community members across three communities",
+        "10+ industry partners before dedicated funding",
+        "250+ events a year, 20+ projects, student satellites, competition robots",
+        "Already running",
+      ],
       us: true,
     },
+  ];
+  const conclusions = [
+    "Every peer pairs open floor space with institutional money; the space alone is never the product.",
+    "The strongest models are demand-funded: corporate members and partner projects carry Newlab and the Media Lab.",
+    "All of them started from a running community, not an empty building.",
+    "TAKOMO enters at the same starting point the winners had, with the community already at scale.",
   ];
   return (
     <section className="slide">
@@ -160,29 +192,42 @@ export function BarSlide() {
         <Kicker>The bar</Kicker>
         <h2 className="headline">We know what we are measuring against.</h2>
       </Reveal>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 940 }}>
-        {rows.map((r, i) => (
-          <Reveal key={r.who} delay={0.08 * i}>
-            <div
-              className="card"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(120px, 200px) 1fr",
-                gap: 16,
-                alignItems: "center",
-                ...(r.us
-                  ? {
-                      borderColor: "var(--accent-soft)",
-                      background: "rgba(163, 29, 69, 0.2)",
-                    }
-                  : {}),
-              }}
-            >
-              <h3 style={{ color: "#fff", fontSize: 17 }}>{r.who}</h3>
-              <p>{r.what}</p>
-            </div>
+      <div className="compare-grid">
+        <Reveal delay={0.1}>
+          <div className="compare-scroll">
+            <table className="compare-table">
+              <thead>
+                <tr>
+                  {cols.map((c) => (
+                    <th key={c}>{c}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.org} className={r.us ? "us" : undefined}>
+                    <td>{r.org}</td>
+                    {r.cells.map((c, i) => (
+                      <td key={i}>{c}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+        <div className="conclusions">
+          <Reveal delay={0.2}>
+            <h3>What the table says</h3>
           </Reveal>
-        ))}
+          {conclusions.map((c, i) => (
+            <Reveal key={i} delay={0.25 + i * 0.08}>
+              <div className="card" style={{ padding: "14px 18px" }}>
+                <p>{c}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

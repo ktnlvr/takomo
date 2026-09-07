@@ -81,45 +81,63 @@ function ChapterScene({
         holder.add(nut);
         holder.rotation.x = Math.PI / 2;
 
-        // on the Thinkin' Rocks item the nut hands over to their extruded logo
-        const logo = new THREE.Group();
-        logo.scale.setScalar(0.001);
-        new SVGLoader().load("/tr-logo.svg", (data) => {
-          const mat = chromeMaterial();
-          const inner = new THREE.Group();
-          for (const path of data.paths) {
-            for (const shape of SVGLoader.createShapes(path)) {
-              const geo = new THREE.ExtrudeGeometry(shape, {
-                depth: 3.4,
-                bevelEnabled: true,
-                bevelThickness: 0.35,
-                bevelSize: 0.35,
-                bevelSegments: 3,
-              });
-              inner.add(new THREE.Mesh(geo, mat));
+        // community logos, extruded chrome; each owns its item in the chapter
+        const makeLogo = (url: string, depth: number, bevel: number, targetW: number) => {
+          const g = new THREE.Group();
+          g.scale.setScalar(0.001);
+          new SVGLoader().load(url, (data) => {
+            const mat = chromeMaterial();
+            const inner = new THREE.Group();
+            for (const path of data.paths) {
+              for (const shape of SVGLoader.createShapes(path)) {
+                const geo = new THREE.ExtrudeGeometry(shape, {
+                  depth,
+                  bevelEnabled: true,
+                  bevelThickness: bevel,
+                  bevelSize: bevel,
+                  bevelSegments: 3,
+                });
+                inner.add(new THREE.Mesh(geo, mat));
+              }
             }
-          }
-          // svg y points down; center the mark and size it for the pane
-          inner.scale.set(0.11, -0.11, 0.11);
-          const box = new THREE.Box3().setFromObject(inner);
-          const c = box.getCenter(new THREE.Vector3());
-          inner.position.sub(c);
-          logo.add(inner);
-        });
+            // svg y points down; normalize to a target width and center
+            inner.scale.set(1, -1, 1);
+            let box = new THREE.Box3().setFromObject(inner);
+            const sc = targetW / (box.max.x - box.min.x);
+            inner.scale.set(sc, -sc, sc);
+            box = new THREE.Box3().setFromObject(inner);
+            inner.position.sub(box.getCenter(new THREE.Vector3()));
+            g.add(inner);
+          });
+          return g;
+        };
+        const trLogo = makeLogo("/tr-logo.svg", 3.4, 0.35, 4.4);
+        const arocLogo = makeLogo("/aroc-logo.svg", 24, 2.4, 3.2);
 
         const wrap = new THREE.Group();
         wrap.add(holder);
-        wrap.add(logo);
+        wrap.add(trLogo);
+        wrap.add(arocLogo);
         obj = wrap;
         objUpdate = (t) => {
           nut.rotation.y = -t * 0.7;
-          logo.rotation.y = Math.sin(t * 0.5) * 0.35;
-          // crossfade by scale: logo owns item 1, the nut owns the rest
-          const showLogo = activeRef.current === 1;
-          const ns = THREE.MathUtils.lerp(holder.scale.x, showLogo ? 0.001 : 1, 0.2);
-          const ls = THREE.MathUtils.lerp(logo.scale.x, showLogo ? 1 : 0.001, 0.2);
-          holder.scale.setScalar(ns);
-          logo.scale.setScalar(ls);
+          // side-to-side wobble with a slight tilt; amplitudes stay well
+          // under 90deg so the marks are never seen mirrored
+          for (const logo of [trLogo, arocLogo]) {
+            logo.rotation.y = Math.sin(t * 0.9) * 0.32;
+            logo.rotation.z = Math.sin(t * 0.6 + 1) * 0.07;
+            logo.rotation.x = Math.sin(t * 0.5) * 0.06;
+          }
+          // crossfade by scale: TR owns item 1, AROC item 3, the nut the rest
+          const a = activeRef.current;
+          const targets: [THREE.Group, boolean][] = [
+            [holder, a !== 1 && a !== 3],
+            [trLogo, a === 1],
+            [arocLogo, a === 3],
+          ];
+          for (const [g, show] of targets) {
+            g.scale.setScalar(THREE.MathUtils.lerp(g.scale.x, show ? 1 : 0.001, 0.2));
+          }
         };
         break;
       }
@@ -182,7 +200,15 @@ function ChapterScene({
       objUpdate?.(t);
       meta.update(t);
       const target = (activeRef.current / Math.max(count - 1, 1) - 0.5) * 0.9;
-      group.rotation.y += 0.004 + spin * 0.02;
+      const logoShown = kind === "nut" && (activeRef.current === 1 || activeRef.current === 3);
+      if (logoShown) {
+        // ease the drift back to face-on so the mark reads correctly
+        const twoPi = Math.PI * 2;
+        const nearest = Math.round(group.rotation.y / twoPi) * twoPi;
+        group.rotation.y = THREE.MathUtils.lerp(group.rotation.y, nearest, 0.08);
+      } else {
+        group.rotation.y += 0.004 + spin * 0.02;
+      }
       group.rotation.x = THREE.MathUtils.lerp(group.rotation.x, target * 0.5, 0.04);
       group.position.y = Math.sin(t * 0.8) * 0.08;
 
