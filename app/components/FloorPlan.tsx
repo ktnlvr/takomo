@@ -556,14 +556,22 @@ export default function FloorPlan() {
     };
   }, []);
 
+  // a click selects directly; scroll-sync pauses until the user scrolls away
+  const manualRef = useRef<{ id: string; scrollY: number } | null>(null);
+
   // the tour: scrolling through the tall wrapper walks the camera room by room
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
 
     const onScroll = () => {
-      const rect = wrap.getBoundingClientRect();
       const vh = window.innerHeight;
+      // a manual selection holds until the page moves by half a screen
+      if (manualRef.current) {
+        if (Math.abs(window.scrollY - manualRef.current.scrollY) < vh * 0.5) return;
+        manualRef.current = null;
+      }
+      const rect = wrap.getBoundingClientRect();
       const scrollable = rect.height - vh;
       if (scrollable <= 0) return;
       const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
@@ -584,15 +592,10 @@ export default function FloorPlan() {
   }, []);
 
   const pick = (id: string) => {
-    // jump the page to the zone's segment; the scroll handler does the rest
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const idx = ZONES.findIndex((z) => z.id === id);
-    const vh = window.innerHeight;
-    const scrollable = wrap.offsetHeight - vh;
-    const top = window.scrollY + wrap.getBoundingClientRect().top;
-    const target = top + ((idx + 1.5) / (ZONES.length + 1)) * scrollable;
-    window.scrollTo({ top: target, behavior: "smooth" });
+    const next = selectedRef.current === id ? null : id;
+    manualRef.current = next ? { id: next, scrollY: window.scrollY } : null;
+    setSelected(next);
+    apiRef.current?.select(next);
   };
 
   // clicks inside the canvas arrive as zonepick events

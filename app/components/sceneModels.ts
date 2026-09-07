@@ -17,21 +17,52 @@ export function makeMetaballs(size = 4.2, resolution = 44) {
     clearcoat: 0.4,
     clearcoatRoughness: 0.25,
   });
+  const group = new THREE.Group();
   const mc = new MarchingCubes(resolution, mat, false, false, 30000);
   mc.scale.setScalar(size / 2);
   mc.isolation = 70;
+  group.add(mc);
 
-  // orbit band, in field coordinates (0..1, center 0.5):
-  // the centerpiece owns r < 0.30, the field dies past ~0.46
+  // orbit band in field coordinates (0..1, center 0.5):
+  // the centerpiece owns r < 0.30; past R_MAX a ball leaves its limiting
+  // area — its sharp surface melts out of the field and a soft blurred
+  // sprite takes over, so escape reads as defocus, not clipping
   const R_MIN = 0.32;
-  const R_MAX = 0.44;
+  const R_MAX = 0.42;
+  const R_GONE = 0.62;
 
-  const balls = Array.from({ length: 6 }, (_, i) => ({
-    phase: (i / 6) * Math.PI * 2,
-    speed: (i % 2 ? 1 : -1) * (0.22 + (i % 3) * 0.07),
-    incl: (i / 6) * Math.PI, // each ball on its own orbital plane
-    breathe: 0.5 + (i % 3) * 0.3,
-  }));
+  // soft radial texture for the blurred escape state
+  const cnv = document.createElement("canvas");
+  cnv.width = cnv.height = 128;
+  const ctx = cnv.getContext("2d")!;
+  const grad = ctx.createRadialGradient(64, 64, 6, 64, 64, 62);
+  grad.addColorStop(0, "rgba(226,232,242,0.9)");
+  grad.addColorStop(0.45, "rgba(200,208,224,0.45)");
+  grad.addColorStop(1, "rgba(200,208,224,0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+  const blurTex = new THREE.CanvasTexture(cnv);
+
+  const balls = Array.from({ length: 6 }, (_, i) => {
+    const sprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: blurTex,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      })
+    );
+    group.add(sprite);
+    return {
+      phase: (i / 6) * Math.PI * 2,
+      speed: (i % 2 ? 1 : -1) * (0.22 + (i % 3) * 0.07),
+      incl: (i / 6) * Math.PI,
+      breathe: 0.35 + (i % 3) * 0.22,
+      // different sizes per ball
+      strength: 0.18 + (i % 3) * 0.11 + (i === 0 ? 0.14 : 0),
+      sprite,
+    };
+  });
 
   const axis = new THREE.Vector3();
   const pos = new THREE.Vector3();
@@ -40,10 +71,10 @@ export function makeMetaballs(size = 4.2, resolution = 44) {
     mc.reset();
     for (const b of balls) {
       const a = t * b.speed + b.phase;
-      // radius breathes across the band and occasionally past its outer edge
-      const r = THREE.MathUtils.lerp(R_MIN, R_MAX, 0.5 + 0.5 * Math.sin(t * b.breathe + b.phase)) +
-        0.05 * Math.sin(t * 0.3 + b.phase * 2);
-      // circular orbit tilted by the ball's inclination
+      // the orbit regularly swells past the band so balls actually escape
+      const r =
+        THREE.MathUtils.lerp(R_MIN, R_MAX, 0.5 + 0.5 * Math.sin(t * b.breathe + b.phase)) +
+        0.14 * Math.max(0, Math.sin(t * 0.21 + b.phase * 2.3));
       pos.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       axis.set(Math.sin(b.incl), Math.cos(b.incl), 0).normalize();
       pos.applyAxisAngle(axis, b.incl);
@@ -51,14 +82,20 @@ export function makeMetaballs(size = 4.2, resolution = 44) {
       const y = 0.5 + pos.y * 0.8;
       const z = 0.5 + pos.z * 0.7;
       const d = Math.hypot(x - 0.5, y - 0.5, z - 0.5);
-      // full strength inside the band, melts to nothing past it
-      const fade = THREE.MathUtils.clamp(1 - (d - R_MAX) / 0.08, 0.05, 1);
-      mc.addBall(x, y, z, 0.3 * fade, 14);
+      // escape factor: 0 inside the band, 1 fully escaped
+      const esc = THREE.MathUtils.smoothstep(d, R_MAX, R_GONE);
+      if (esc < 1) mc.addBall(x, y, z, b.strength * (1 - esc), 14);
+      // blurred stand-in fades in as the sharp surface fades out
+      b.sprite.position.set((x - 0.5) * size, (y - 0.5) * size, (z - 0.5) * size);
+      const sc = Math.cbrt(b.strength) * size * 0.42 * (0.8 + esc * 0.7);
+      b.sprite.scale.setScalar(sc);
+      (b.sprite.material as THREE.SpriteMaterial).opacity =
+        esc * (1 - THREE.MathUtils.smoothstep(d, R_GONE, R_GONE + 0.12)) * 0.75;
     }
     mc.update();
   };
 
-  return { obj: mc as unknown as THREE.Object3D, update, material: mat };
+  return { obj: group as THREE.Object3D, update, material: mat };
 }
 
 /** Chrome dev board — a Kria/Nexys-style FPGA board rendered as pure metal. */
@@ -92,7 +129,7 @@ export function makeDevBoard() {
     g.add(fin);
   }
   // fan ring on the heatsink (the Kria giveaway)
-  const fan = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 12, 40), cherry);
+  const fan = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 20, 56), cherry);
   fan.rotation.x = Math.PI / 2;
   fan.position.set(-0.35, 0.44, -0.1);
   g.add(fan);
@@ -116,7 +153,7 @@ export function makeDevBoard() {
   }
   // buttons
   for (let i = 0; i < 5; i++) {
-    const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.08, 20), chrome);
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.08, 32), chrome);
     btn.position.set(0.5 + i * 0.22, 0.1, 0.4);
     g.add(btn);
   }
@@ -153,12 +190,7 @@ export function makeDevBoard() {
 /** Wrecked statue: a toppled classical column with rubble. */
 export function makeRuin() {
   const g = new THREE.Group();
-  const stone = new THREE.MeshPhysicalMaterial({
-    color: 0xcfd3da,
-    metalness: 0.75,
-    roughness: 0.45,
-    envMapIntensity: 0.9,
-  });
+  const stone = chromeMaterial(0xd6dbe4);
 
   const flutedDrum = (rTop: number, rBot: number, h: number, jagged: boolean) => {
     const geo = new THREE.CylinderGeometry(rTop, rBot, h, 48, jagged ? 4 : 1);
@@ -231,17 +263,17 @@ export function makeFlywheel() {
   const dark = tungstenMaterial();
 
   const wheel = new THREE.Group();
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.2, 20, 72), chrome);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.2, 28, 96), chrome);
   wheel.add(rim);
   for (let i = 0; i < 6; i++) {
-    const spoke = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 1.35, 14), dark);
+    const spoke = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 1.35, 24), dark);
     spoke.position.y = 0.7;
     const holder = new THREE.Group();
     holder.rotation.z = (i / 6) * Math.PI * 2;
     holder.add(spoke);
     wheel.add(holder);
   }
-  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.34, 24), chrome);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.34, 40), chrome);
   hub.rotation.x = Math.PI / 2;
   wheel.add(hub);
   // a hex nut as the axle nut — the brand rides the wheel
@@ -262,7 +294,7 @@ export function makeFlywheel() {
   // beads circulating around the rim: what goes around comes around
   const beads: THREE.Mesh[] = [];
   for (let i = 0; i < 8; i++) {
-    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.075, 18, 18), chrome);
+    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 24), chrome);
     g.add(bead);
     beads.push(bead);
   }

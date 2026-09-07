@@ -631,12 +631,14 @@ nav.topnav .links a:hover::before {
 
 .sierpinski {
   width: 100%;
-  height: auto;
-  filter: drop-shadow(0 0 18px rgba(198, 42, 85, 0.22));
+  height: min(52vh, 480px);
+  min-height: 280px;
 }
 
-.sierpinski polygon {
-  transition: opacity 0.4s;
+.sierpinski canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 @media (max-width: 900px) {

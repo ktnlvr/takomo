@@ -4,47 +4,7 @@ import dynamic from "next/dynamic";
 import { Reveal, CountUp } from "./Reveal";
 
 const BuildingCanvas = dynamic(() => import("./BuildingCanvas"), { ssr: false });
-
-/** Sierpinski triangle, recursive SVG — structure out of self-similar parts. */
-function Sierpinski({ depth = 5 }: { depth?: number }) {
-  const tris: { x: number; y: number; s: number; d: number }[] = [];
-  const recurse = (x: number, y: number, s: number, d: number) => {
-    if (d === 0) {
-      tris.push({ x, y, s, d });
-      return;
-    }
-    const h = s / 2;
-    recurse(x, y, h, d - 1); // top
-    recurse(x - h / 2, y + (h * Math.sqrt(3)) / 2, h, d - 1); // bottom left
-    recurse(x + h / 2, y + (h * Math.sqrt(3)) / 2, h, d - 1); // bottom right
-  };
-  recurse(200, 10, 380, depth);
-  const H = (380 * Math.sqrt(3)) / 2 + 20;
-  return (
-    <svg className="sierpinski" viewBox={`0 0 400 ${H}`} aria-hidden>
-      {tris.map((t, i) => {
-        const h = (t.s * Math.sqrt(3)) / 2;
-        return (
-          <polygon
-            key={i}
-            points={`${t.x},${t.y} ${t.x - t.s / 2},${t.y + h} ${t.x + t.s / 2},${t.y + h}`}
-            fill={i % 7 === 0 ? "rgba(143,232,224,0.5)" : "rgba(198,42,85,0.55)"}
-            stroke="rgba(255,255,255,0.35)"
-            strokeWidth="0.6"
-          >
-            <animate
-              attributeName="opacity"
-              values="0.55;1;0.55"
-              dur={`${3 + (i % 5)}s`}
-              begin={`${(i % 9) * 0.3}s`}
-              repeatCount="indefinite"
-            />
-          </polygon>
-        );
-      })}
-    </svg>
-  );
-}
+const SierpinskiCanvas = dynamic(() => import("./SierpinskiCanvas"), { ssr: false });
 
 function Kicker({ children }: { children: React.ReactNode }) {
   return <span className="kicker">{children}</span>;
@@ -262,7 +222,9 @@ export function WhySlide() {
           ))}
         </div>
         <Reveal delay={0.25}>
-          <Sierpinski depth={5} />
+          <div className="sierpinski">
+            <SierpinskiCanvas />
+          </div>
         </Reveal>
       </div>
     </section>

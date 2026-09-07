@@ -69,9 +69,18 @@ function ChapterScene({
     let objUpdate: ((t: number) => void) | undefined;
     let obj: THREE.Object3D;
     switch (kind) {
-      case "nut":
-        obj = makeHexNut(1.15, chromeMaterial());
+      case "nut": {
+        // face the camera and spin around the bore, wheel-style
+        const nut = makeHexNut(1.15, chromeMaterial());
+        const holder = new THREE.Group();
+        holder.add(nut);
+        holder.rotation.x = Math.PI / 2;
+        obj = holder;
+        objUpdate = (t) => {
+          nut.rotation.y = -t * 0.7;
+        };
         break;
+      }
       case "board": {
         const b = makeDevBoard();
         obj = b.obj;
