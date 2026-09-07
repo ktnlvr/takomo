@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { MarchingCubes } from "three/examples/jsm/objects/MarchingCubes.js";
 import { makeEnvironment, makeHexNut, makeBolt, chromeMaterial } from "./brand";
 
 const COUNT = 14;
@@ -144,6 +145,21 @@ export default function BackgroundField() {
       });
     }
 
+    // floating metaballs drifting among the pieces, merging as they meet
+    const META_SIZE = 16;
+    const mc = new MarchingCubes(28, chromeMaterial(0xc8d2e2), false, false, 20000);
+    mc.scale.setScalar(META_SIZE / 2);
+    mc.position.z = -8;
+    mc.isolation = 60;
+    scene.add(mc);
+    const blobs = Array.from({ length: 7 }, (_, i) => ({
+      phase: (i / 7) * Math.PI * 2,
+      speed: (i % 2 ? 1 : -1) * (0.05 + (i % 3) * 0.03),
+      rx: 0.18 + (i % 4) * 0.07,
+      ry: 0.1 + ((i + 1) % 3) * 0.08,
+      strength: 0.1 + (i % 3) * 0.05,
+    }));
+
     // the ink layer: black where the fluid is moving, in front of the pieces
     const inkData = new Uint8Array(GW * GH * 4); // stays zeroed except alpha
     const inkTex = new THREE.DataTexture(inkData, GW, GH, THREE.RGBAFormat);
@@ -185,6 +201,22 @@ export default function BackgroundField() {
         }
       }
       inkTex.needsUpdate = true;
+
+      // metaballs wander on slow independent orbits and merge where they
+      // overlap; scroll drifts the whole cloud slightly for parallax
+      mc.reset();
+      const my = (scroll * 0.0003) % 1;
+      for (const b of blobs) {
+        const a = t * b.speed + b.phase;
+        mc.addBall(
+          0.5 + Math.cos(a) * b.rx + 0.06 * Math.sin(t * 0.23 + b.phase * 3),
+          ((0.5 + Math.sin(a * 1.3 + b.phase) * b.ry + my) % 1 + 1) % 1,
+          0.5 + Math.sin(a * 0.7) * 0.12,
+          b.strength,
+          12
+        );
+      }
+      mc.update();
 
       pieces.forEach((p, i) => {
         const dist = camera.position.z - p.obj.position.z;
