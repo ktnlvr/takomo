@@ -15,8 +15,12 @@ export default function SnapScroll() {
 
   useLenis((lenis) => {
     if (snapRef.current) return;
+    // touch scrolling keeps native momentum; forcing mandatory snap there
+    // makes flicks land somewhere far and feel uncontrolled, so touch gets
+    // proximity alignment instead while desktop keeps the hard lock-in
+    const touch = window.matchMedia("(pointer: coarse)").matches;
     const snap = new Snap(lenis, {
-      type: "mandatory",
+      type: touch ? "proximity" : "mandatory",
       duration: 0.38,
       debounce: 120,
       easing: (t) => 1 - Math.pow(2, -10 * t), // hard expo-out: locks in fast
