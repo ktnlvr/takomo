@@ -6,9 +6,10 @@ import { makeEnvironment, makeHexNut, makeBolt, chromeMaterial } from "./brand";
 
 const COUNT = 14;
 
-// invisible fluid: a coarse velocity grid the cursor stirs; pieces drift on it
-const GW = 48;
-const GH = 27;
+// fluid: a velocity + ink grid the cursor stirs; pieces drift on the
+// velocity, the ink renders as dense blackness where the fluid moves
+const GW = 192;
+const GH = 108;
 
 /**
  * Blurred nuts and bolts drifting behind the whole page. Rendered at a low
@@ -43,12 +44,14 @@ export default function BackgroundField() {
     // ── fluid grid ──────────────────────────────────
     let vx = new Float32Array(GW * GH);
     let vy = new Float32Array(GW * GH);
+    let dye = new Float32Array(GW * GH);
     let tvx = new Float32Array(GW * GH);
     let tvy = new Float32Array(GW * GH);
+    let tdye = new Float32Array(GW * GH);
 
     const stepFluid = () => {
-      // one cheap diffusion pass + dissipation (no pressure solve — the
-      // fluid is invisible, only its drift matters)
+      // one cheap diffusion pass + dissipation (no pressure solve; drift
+      // and the ink trace are all that matter visually)
       for (let j = 0; j < GH; j++) {
         for (let i = 0; i < GW; i++) {
           const idx = j * GW + i;
@@ -58,22 +61,26 @@ export default function BackgroundField() {
           const d = Math.min(j + 1, GH - 1) * GW + i;
           tvx[idx] = (vx[idx] * 4 + vx[l] + vx[r] + vx[u] + vx[d]) * 0.125 * 0.988;
           tvy[idx] = (vy[idx] * 4 + vy[l] + vy[r] + vy[u] + vy[d]) * 0.125 * 0.988;
+          tdye[idx] = (dye[idx] * 4 + dye[l] + dye[r] + dye[u] + dye[d]) * 0.125 * 0.972;
         }
       }
       [vx, tvx] = [tvx, vx];
       [vy, tvy] = [tvy, vy];
+      [dye, tdye] = [tdye, dye];
     };
 
     const splat = (fx: number, fy: number, dx: number, dy: number) => {
       const cx = fx * GW;
       const cy = fy * GH;
-      const R = 4;
+      const R = 14;
+      const speed = Math.hypot(dx, dy);
       for (let j = Math.max(0, Math.floor(cy - R)); j < Math.min(GH, cy + R); j++) {
         for (let i = Math.max(0, Math.floor(cx - R)); i < Math.min(GW, cx + R); i++) {
-          const fall = Math.exp(-((i - cx) ** 2 + (j - cy) ** 2) / (R * 1.4));
+          const fall = Math.exp(-((i - cx) ** 2 + (j - cy) ** 2) / (R * 4.5));
           const idx = j * GW + i;
           vx[idx] += dx * fall;
           vy[idx] += dy * fall;
+          dye[idx] = Math.min(dye[idx] + speed * fall * 2.2, 1);
         }
       }
     };
@@ -91,7 +98,7 @@ export default function BackgroundField() {
       const fx = e.clientX / window.innerWidth;
       const fy = e.clientY / window.innerHeight;
       if (lastMX >= 0) {
-        splat(fx, fy, (fx - lastMX) * 30, (fy - lastMY) * 30);
+        splat(fx, fy, (fx - lastMX) * 11, (fy - lastMY) * 11);
       }
       lastMX = fx;
       lastMY = fy;
@@ -137,10 +144,25 @@ export default function BackgroundField() {
       });
     }
 
+    // the ink layer: black where the fluid is moving, in front of the pieces
+    const inkData = new Uint8Array(GW * GH * 4); // stays zeroed except alpha
+    const inkTex = new THREE.DataTexture(inkData, GW, GH, THREE.RGBAFormat);
+    inkTex.magFilter = THREE.LinearFilter;
+    inkTex.minFilter = THREE.LinearFilter;
+    const ink = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({ map: inkTex, transparent: true, depthWrite: false })
+    );
+    ink.position.z = -1;
+    scene.add(ink);
+
     const resize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight, false);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      const dist = camera.position.z - ink.position.z;
+      const h = 2 * Math.tan(THREE.MathUtils.degToRad(22.5)) * dist;
+      ink.scale.set(h * camera.aspect, h, 1);
     };
     resize();
     window.addEventListener("resize", resize);
@@ -154,6 +176,15 @@ export default function BackgroundField() {
       const t = clock.getElapsedTime();
       const scroll = window.scrollY;
       stepFluid();
+
+      // paint the ink: alpha from dye density (texture rows are bottom-up)
+      for (let j = 0; j < GH; j++) {
+        const row = (GH - 1 - j) * GW;
+        for (let i = 0; i < GW; i++) {
+          inkData[(row + i) * 4 + 3] = Math.min(dye[j * GW + i] * 235, 215);
+        }
+      }
+      inkTex.needsUpdate = true;
 
       pieces.forEach((p, i) => {
         const dist = camera.position.z - p.obj.position.z;
@@ -172,7 +203,7 @@ export default function BackgroundField() {
         const sx = THREE.MathUtils.clamp(p.obj.position.x / halfW / 2 + 0.5, 0, 1);
         const sy = THREE.MathUtils.clamp(0.5 - p.obj.position.y / halfH / 2, 0, 1);
         const [fx, fy] = sample(sx, sy);
-        const feel = (1.3 - p.depth) * 0.08 * dist;
+        const feel = (1.3 - p.depth) * 0.05 * dist;
         p.flowX = p.flowX * 0.95 + fx * feel;
         p.flowY = p.flowY * 0.95 - fy * feel;
 
