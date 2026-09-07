@@ -30,7 +30,10 @@ export default function SnapScroll() {
         .forEach((el) => {
           if (seen.has(el)) return;
           seen.add(el);
-          snap.addElement(el, { align: "start" });
+          // sections taller than the viewport also anchor at their end,
+          // otherwise mandatory snapping makes their bottom unreachable
+          const tall = el.offsetHeight > window.innerHeight * 1.05;
+          snap.addElement(el, { align: tall ? ["start", "end"] : "start" });
         });
       document.querySelectorAll<HTMLElement>("[data-chapter-item]").forEach((el) => {
         if (seen.has(el)) return;

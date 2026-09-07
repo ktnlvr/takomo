@@ -19,6 +19,7 @@ html {
 
 html {
   background: var(--bg);
+  overscroll-behavior-y: none;
 }
 
 html,
@@ -72,6 +73,12 @@ body {
     radial-gradient(38% 45% at 74% 38%, rgba(163, 29, 69, 0.16) 0%, transparent 70%),
     radial-gradient(24% 30% at 60% 68%, rgba(143, 232, 224, 0.07) 0%, transparent 70%);
   pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .slide {
+    padding: 76px 20px;
+  }
 }
 
 /* ── Nav ───────────────────────────────────────── */
@@ -948,6 +955,12 @@ nav.topnav .links a:hover::before {
   .chapter-card {
     margin-left: 0;
     padding: 18px 16px;
+  }
+
+  /* short viewports can fail the visibility threshold; never leave the
+     text grayed out on mobile */
+  .chapter-item {
+    opacity: 1;
   }
 
   .chapter-progress {

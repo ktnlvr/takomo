@@ -260,7 +260,7 @@ export default function StickyChapter({
           }
         });
       },
-      { threshold: 0.55 }
+      { threshold: 0.3 }
     );
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
