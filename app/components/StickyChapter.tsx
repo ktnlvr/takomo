@@ -105,9 +105,9 @@ function ChapterScene({
           });
           return g;
         };
-        const trLogo = makeLogo("/tr-logo.svg", 3.4, 4.4);
-        const asaLogo = makeLogo("/asa-logo.svg", 12, 3.0);
-        const arocLogo = makeLogo("/aroc-logo.svg", 24, 3.2);
+        const trLogo = makeLogo("/tr-logo.svg", 3.4, 3.3);
+        const asaLogo = makeLogo("/asa-logo.svg", 12, 2.25);
+        const arocLogo = makeLogo("/aroc-logo.svg", 24, 2.4);
 
         const wrap = new THREE.Group();
         wrap.add(holder);
