@@ -100,10 +100,14 @@ export default function BackgroundField() {
 
     let lastMX = -1;
     let lastMY = -1;
+    // the sim pauses while the BMK5 tour is on screen so nothing competes
+    // with the floor plan's own camera work
+    let fluidPaused = false;
+    let spaceEl: HTMLElement | null = null;
     const onPointer = (e: PointerEvent) => {
       const fx = e.clientX / window.innerWidth;
       const fy = e.clientY / window.innerHeight;
-      if (lastMX >= 0) {
+      if (lastMX >= 0 && !fluidPaused) {
         splat(fx, fy, (fx - lastMX) * 11, (fy - lastMY) * 11);
       }
       lastMX = fx;
@@ -196,7 +200,13 @@ export default function BackgroundField() {
       raf = requestAnimationFrame(tick);
       const t = clock.getElapsedTime();
       const scroll = window.scrollY;
-      if (fluidOn) {
+      if (!spaceEl) spaceEl = document.getElementById("space");
+      if (spaceEl) {
+        const r = spaceEl.getBoundingClientRect();
+        fluidPaused = r.top < window.innerHeight && r.bottom > 0;
+      }
+      ink.visible = fluidOn && !fluidPaused;
+      if (fluidOn && !fluidPaused) {
         stepFluid();
         // paint the ink: alpha from dye density (texture rows are bottom-up)
         for (let j = 0; j < GH; j++) {

@@ -116,8 +116,8 @@ function ChapterScene({
           logo.rotation.y = Math.sin(t * 0.5) * 0.35;
           // crossfade by scale: logo owns item 1, the nut owns the rest
           const showLogo = activeRef.current === 1;
-          const ns = THREE.MathUtils.lerp(holder.scale.x, showLogo ? 0.001 : 1, 0.07);
-          const ls = THREE.MathUtils.lerp(logo.scale.x, showLogo ? 1 : 0.001, 0.07);
+          const ns = THREE.MathUtils.lerp(holder.scale.x, showLogo ? 0.001 : 1, 0.2);
+          const ls = THREE.MathUtils.lerp(logo.scale.x, showLogo ? 1 : 0.001, 0.2);
           holder.scale.setScalar(ns);
           logo.scale.setScalar(ls);
         };

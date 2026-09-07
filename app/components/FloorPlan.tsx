@@ -616,6 +616,19 @@ export default function FloorPlan() {
       ref={wrapRef}
       style={{ height: `${(ZONES.length + 2) * 48}vh` }}
     >
+      {/* snap stops: one per tour segment (overview + each room) */}
+      {Array.from({ length: ZONES.length + 1 }, (_, k) => (
+        <div
+          key={k}
+          data-tour-point
+          style={{
+            position: "absolute",
+            top: `calc((100% - 100vh) * ${((k + 0.5) / (ZONES.length + 1)).toFixed(4)})`,
+            height: 1,
+            width: 1,
+          }}
+        />
+      ))}
       <div className="floorplan-sticky">
         <div>
           <span className="kicker">The space</span>
