@@ -35,37 +35,37 @@ export default function Home() {
             body: (
               <>
                 We are a <strong>hardware consortium</strong> facilitating a makerspace for its
-                members — three proven communities under one roof, with Aalto University as the
+                members: three proven communities under one roof, with Aalto University as the
                 founding institutional partner.
               </>
             ),
           },
           {
-            title: "Thinkin' Rocks — hardware & compute.",
+            title: "Thinkin' Rocks: hardware & compute.",
             body: (
               <>
-                An organization created to support builders, researchers, and entrepreneurs working
-                on hardware and emerging computational systems — a community that promotes
-                knowledge sharing and experimentation in the field. <strong>It operates the space.</strong>
+                Supports builders, researchers, and entrepreneurs working on hardware and emerging
+                computational systems, and promotes knowledge sharing and experimentation in the
+                field. <strong>It operates the space.</strong>
               </>
             ),
           },
           {
-            title: "Aalto Space Association — satellites & rocketry.",
+            title: "Aalto Space Association: satellites & rocketry.",
             body: (
               <>
-                Promoting interest, education, and cooperation in satellite technology, rocketry,
-                and astronomy among students at Aalto — <strong>behind student-built satellites</strong>{" "}
-                and international rover competitions.
+                Promotes education and cooperation in satellite technology, rocketry, and astronomy
+                at Aalto. <strong>Behind student-built satellites</strong> and international rover
+                competitions.
               </>
             ),
           },
           {
-            title: "Aalto Robotics Club — robotics & automation.",
+            title: "Aalto Robotics Club: robotics & automation.",
             body: (
               <>
-                Uniting people around ambitious, real-world projects in robotics with access to
-                modern tools and resources — <strong>mentored by industry specialists and active
+                Unites people around ambitious, real-world projects in robotics with access to
+                modern tools and resources, <strong>mentored by industry specialists and active
                 researchers.</strong>
               </>
             ),
@@ -89,8 +89,8 @@ export default function Home() {
             title: "Software is becoming abundant.",
             body: (
               <>
-                AI now writes <strong>~41% of all code</strong> — and 75% of new code at Google.
-                Software got easy; the scarce thing is no longer the ability to write it. The value
+                AI now writes <strong>~41% of all code</strong>, and 75% of new code at Google.
+                Software got easy. The scarce thing is no longer the ability to write it; the value
                 moved to the physical world.
               </>
             ),
@@ -99,8 +99,8 @@ export default function Home() {
             title: "Capital is moving from models to machines.",
             body: (
               <>
-                Deep tech takes a record <strong>~32% of all European VC</strong> — a third of
-                Europe&apos;s venture money flowing into hardware, energy, and industry. Robotics
+                Deep tech takes a record <strong>~32% of all European VC</strong>: a third of
+                Europe&apos;s venture money now flows into hardware, energy, and industry. Robotics
                 and physical AI raised $27.6B last year across 1,000+ deals.
               </>
             ),
@@ -109,8 +109,8 @@ export default function Home() {
             title: "The industrial base is being rebuilt.",
             body: (
               <>
-                AI is climbing out of the cloud and into the real world. Industrial companies — the
-                backbone of the Finnish economy — <strong>need to automate to stay competitive.</strong>
+                AI is climbing out of the cloud and into the real world. Industrial companies, the
+                backbone of the Finnish economy, <strong>need to automate to stay competitive.</strong>
               </>
             ),
           },
@@ -120,7 +120,7 @@ export default function Home() {
               <>
                 Draghi&apos;s estimate: the EU needs <strong>~€800B a year</strong> in new
                 investment to stay competitive. A €100B Clean Industrial Deal, a Chips Act, a
-                scramble for sovereignty. Finland aims to be at the head of that movement — a
+                scramble for sovereignty. Finland aims to be at the head of that movement, a
                 target that won&apos;t be achieved by hoping.
               </>
             ),
@@ -142,8 +142,8 @@ export default function Home() {
             title: "The engineer and the researcher.",
             body: (
               <>
-                Lacks <strong>equipment for fast prototyping</strong>. The idea is sound, the
-                skills are there — but the mill, the bench, and the test rig are behind someone
+                Lacks <strong>equipment for fast prototyping</strong>. The idea is sound and the
+                skills are there, but the mill, the bench, and the test rig are behind someone
                 else&apos;s door.
               </>
             ),
@@ -161,9 +161,8 @@ export default function Home() {
             title: "The hobbyist.",
             body: (
               <>
-                Lacks <strong>community to gain feedback and ideas</strong>. Building alone is
-                slow; building next to someone who&apos;s done it before is how skill actually
-                spreads.
+                Lacks <strong>community for feedback and ideas</strong>. Building alone is slow;
+                building next to someone who has done it before is how skill spreads.
               </>
             ),
           },
@@ -171,8 +170,8 @@ export default function Home() {
             title: "The problem is connecting builders to output.",
             body: (
               <>
-                When early-stage resources stay scattered — equipment, expertise, funding,
-                community, iteration — <strong>value leaks at every step</strong>, and everyone
+                When early-stage resources stay scattered (equipment, expertise, funding,
+                community, iteration), <strong>value leaks at every step</strong> and everyone
                 loses. Plug the funnel and output reaches the market.
               </>
             ),
@@ -197,7 +196,7 @@ export default function Home() {
                 TAKOMO takes builders, improves their skills with hard physical technology, then
                 connects each one to wherever they actually want to go. People learn tools, use
                 the shops, build their own projects and help on other people&apos;s.{" "}
-                <strong>Most members live here and never need anything else — that&apos;s the point.</strong>
+                <strong>Most members live here and never need anything else. That&apos;s the point.</strong>
               </>
             ),
           },
@@ -205,9 +204,9 @@ export default function Home() {
             title: "The engine is the connection layer.",
             body: (
               <>
-                Making people capable is half of it; matching is the other half. Peers,
-                technical staff, mentors, corporate partners, capital, Aalto research, alumni —{" "}
-                <strong>a brief board, a regular demo cycle, review points, and a deal desk</strong>{" "}
+                Making people capable is half of it; matching is the other half. Peers, technical
+                staff, mentors, corporate partners, capital, Aalto research, alumni.{" "}
+                <strong>A brief board, a regular demo cycle, review points, and a deal desk</strong>{" "}
                 turn capability into somewhere to go.
               </>
             ),
@@ -216,10 +215,10 @@ export default function Home() {
             title: "Four kinds of output.",
             body: (
               <>
-                <strong>Philosophical</strong> — a culture where the future is built, not waited
-                for. <strong>Professional</strong> — engineers who can prototype, collaborate, and
-                ship. <strong>Financial</strong> — prototypes become products, builders become
-                founders. <strong>International</strong> — a visible community that attracts talent
+                <strong>Philosophical</strong>: a culture where the future is built, not waited
+                for. <strong>Professional</strong>: engineers who can prototype, collaborate, and
+                ship. <strong>Financial</strong>: prototypes become products, builders become
+                founders. <strong>International</strong>: a visible community that attracts talent
                 and gives it a reason to stay.
               </>
             ),
@@ -229,7 +228,7 @@ export default function Home() {
             body: (
               <>
                 More people building means more projects, more exits, more returning founders and
-                mentors — which pulls in more talent, capital, and partners.{" "}
+                mentors, which pulls in more talent, capital, and partners.{" "}
                 <strong>The loop is the actual product.</strong> The thousand square metres is just
                 the place it runs.
               </>

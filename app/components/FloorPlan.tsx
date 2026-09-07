@@ -36,7 +36,7 @@ export const ZONES: Zone[] = [
   {
     id: "hall",
     name: "Hardware Hall",
-    desc: "The big hall immediately after the choke point. Persistent robotics competition arenas, robotics setups, and long-running builds that never have to be torn down between sessions.",
+    desc: "The big hall right after the choke point. Persistent robotics competition arenas, robotics setups, and long-running builds that stay assembled.",
     color: "#c62a55",
     marker: "bolt",
     x: 2, z: 0.5, w: 20, d: 11.5, h: 2.4,
@@ -44,7 +44,7 @@ export const ZONES: Zone[] = [
   {
     id: "lobby",
     name: "General Lobby",
-    desc: "The public heart of TAKOMO. The hardware hall flows straight into it — open to visitors, demos on display, the front door of the community.",
+    desc: "The public heart of TAKOMO. The hardware hall flows straight into it: open to visitors, with demos on display.",
     color: "#8fe8e0",
     marker: "blob",
     x: 22.5, z: 0.5, w: 10.5, d: 11.5, h: 0.55,
@@ -52,7 +52,7 @@ export const ZONES: Zone[] = [
   {
     id: "quick",
     name: "Quick-Access Storage",
-    desc: "Parts, components, fasteners, and consumables an arm's reach above the machine shop — iteration is fast when the part you need is ten meters away.",
+    desc: "Parts, components, fasteners, and consumables next to the machine shop. Iteration is fast when the part you need is ten meters away.",
     color: "#7a3b52",
     marker: "stack",
     x: 33.5, z: 0.5, w: 9.5, d: 8.5, h: 1.0,
@@ -60,7 +60,7 @@ export const ZONES: Zone[] = [
   {
     id: "it",
     name: "IT Closet",
-    desc: "An 8 m² nook of network, racks, and blinking lights. Small room, big uptime.",
+    desc: "An 8 m² nook for network and server racks.",
     color: "#5fd6c9",
     marker: "rack",
     x: 43.5, z: 0.5, w: 2.7, d: 3.1, h: 1.3,
@@ -68,7 +68,7 @@ export const ZONES: Zone[] = [
   {
     id: "cowork",
     name: "Coworking / Innovation Space",
-    desc: "Whiteboards, desks, and room to think — the general coworking space at the east end, where projects get planned, argued about, and designed before they hit the machines.",
+    desc: "Whiteboards and desks at the east end, where projects get planned and designed before they hit the machines.",
     color: "#e0577f",
     marker: "ring",
     x: 55, z: 0.5, w: 12.5, d: 18, h: 1.1,
@@ -76,7 +76,7 @@ export const ZONES: Zone[] = [
   {
     id: "lounge",
     name: "Lounge",
-    desc: "Turn right just before the coworking space. Tea, coffee, sofas — and explicitly no work. Rest is part of the process.",
+    desc: "Turn right just before the coworking space. Tea, coffee, sofas, and explicitly no work.",
     color: "#8fe8e0",
     marker: "blob",
     x: 46.5, z: 10.5, w: 8, d: 8, h: 0.8,
@@ -84,7 +84,7 @@ export const ZONES: Zone[] = [
   {
     id: "machine",
     name: "Machine Shop",
-    desc: "CNCs, 3D printers, and everything loud — accessible straight from the lobby, with quick-access storage right above it on the plan.",
+    desc: "CNCs, 3D printers, and everything loud, accessible straight from the lobby.",
     color: "#c62a55",
     marker: "nut",
     x: 33.5, z: 10.5, w: 12.5, d: 8, h: 1.5,
@@ -92,7 +92,7 @@ export const ZONES: Zone[] = [
   {
     id: "storage",
     name: "Storage Units",
-    desc: "Units for servers, items, member projects and whatever else needs a home — some of them refrigerated.",
+    desc: "Units for servers, items, and member projects. Some of them refrigerated.",
     color: "#7a3b52",
     marker: "cube",
     x: 22.5, z: 13, w: 10.5, d: 5.5, h: 1.2,
@@ -100,7 +100,7 @@ export const ZONES: Zone[] = [
   {
     id: "asa",
     name: "ASA Clubroom",
-    desc: "Home base for the Aalto Space Association — satellites, rocketry, and astronomy get their own room in the office row under the hardware hall.",
+    desc: "Home base for the Aalto Space Association, in the office row under the hardware hall.",
     color: "#c8a7b4",
     marker: "sat",
     x: 2, z: 13, w: 4, d: 5.5, h: 1.0,
@@ -108,7 +108,7 @@ export const ZONES: Zone[] = [
   {
     id: "office1",
     name: "Staff Office",
-    desc: "Day-to-day operations of the space — memberships, partners, logistics.",
+    desc: "Day-to-day operations of the space: memberships, partners, logistics.",
     color: "#8b7580",
     marker: "puck",
     x: 6.2, z: 13, w: 4, d: 5.5, h: 1.0,
@@ -116,7 +116,7 @@ export const ZONES: Zone[] = [
   {
     id: "office2",
     name: "Staff Office",
-    desc: "A second office for the people who keep the forge burning.",
+    desc: "A second office for staff.",
     color: "#8b7580",
     marker: "puck",
     x: 10.4, z: 13, w: 4, d: 5.5, h: 1.0,
@@ -124,7 +124,7 @@ export const ZONES: Zone[] = [
   {
     id: "q1",
     name: "?",
-    desc: "Unassigned. Maybe a community room, maybe a partner lab — maybe your project's room.",
+    desc: "Unassigned. Could become a community room or a partner lab.",
     color: "#5c4a52",
     marker: "question",
     x: 14.6, z: 13, w: 3.6, d: 5.5, h: 1.0,
@@ -132,7 +132,7 @@ export const ZONES: Zone[] = [
   {
     id: "q2",
     name: "?",
-    desc: "Also unassigned. The floor plan is a proposal — the community fills it in.",
+    desc: "Also unassigned. The floor plan is a proposal; the community fills it in.",
     color: "#5c4a52",
     marker: "question",
     x: 18.4, z: 13, w: 3.6, d: 5.5, h: 1.0,
@@ -617,7 +617,7 @@ export default function FloorPlan() {
         <div>
           <span className="kicker">The space</span>
           <h2 className="headline" style={{ margin: "8px 0 0", fontSize: "clamp(1.4rem, 2.6vw, 2.1rem)" }}>
-            BMK5, Otaniemi — first floor, right wing.{" "}
+            BMK5, Otaniemi: first floor, right wing.{" "}
             <span className="accent">Scroll to walk the rooms.</span>
           </h2>
         </div>
@@ -630,7 +630,7 @@ export default function FloorPlan() {
               </div>
             )}
             <div className="floorplan-hud">
-              BMK5 · 1. krs — laid out from the floor plan · the rest of the building is ghosted
+              BMK5 · 1. krs · from the floor plan · rest of the building ghosted
             </div>
           </div>
           <div className="zone-rail">
@@ -649,7 +649,7 @@ export default function FloorPlan() {
               <p>
                 {shown
                   ? shown.desc
-                  : "Keep scrolling — the camera visits every room in order. Or click one to jump."}
+                  : "Keep scrolling and the camera visits every room in order, or click one to jump."}
               </p>
             </div>
           </div>

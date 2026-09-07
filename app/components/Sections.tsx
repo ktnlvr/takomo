@@ -62,7 +62,7 @@ export function WordmarkSlide() {
             fontWeight: 900,
             letterSpacing: "0.03em",
             margin: "0 0 10px",
-            filter: "drop-shadow(0 0 50px rgba(198,42,85,0.4))",
+            filter: "drop-shadow(0 0 26px rgba(198,42,85,0.25))",
           }}
         >
           TAKOMO
@@ -87,7 +87,7 @@ export function TractionSlide() {
   const stats = [
     { v: 250, s: "+", l: "events over the course of the year" },
     { v: 2000, s: "+", l: "event attendees" },
-    { v: 1000, s: "", l: "community members — and growing" },
+    { v: 1000, s: "", l: "community members, and growing" },
     { v: 50, s: "+", l: "systems in the hardware library" },
     { v: 20, s: "+", l: "projects supported" },
     { v: 10, s: "+", l: "industry partners" },
@@ -137,7 +137,7 @@ export function DaySlide() {
     },
     {
       when: "Evening",
-      what: "A build session, a talk, a demo night — and someone decides to turn their prototype into a company.",
+      what: "A build session, a talk, a demo night; someone decides to turn their prototype into a company.",
     },
   ];
   return (
@@ -161,7 +161,7 @@ export function DaySlide() {
         <Reveal delay={0.2}>
           <div className="day-canvas">
             <BuildingCanvas />
-            <div className="caption">BMK5 · Betonimiehenkuja 5 — our wing lit</div>
+            <div className="caption">BMK5 · Betonimiehenkuja 5 · our wing lit</div>
           </div>
         </Reveal>
       </div>
@@ -182,7 +182,7 @@ export function BarSlide() {
     },
     {
       who: "Newlab",
-      what: "400+ member startups raised $4B VC, $3B exits, $17B+ valuation — 264 days quicker to a series A.",
+      what: "400+ member startups raised $4B VC, $3B exits, $17B+ valuation. 264 days quicker to a series A.",
     },
     {
       who: "Dream Hall · TU Delft",
@@ -190,7 +190,7 @@ export function BarSlide() {
     },
     {
       who: "TAKOMO",
-      what: "The Nordic forge built to reach that tier — starting from a running community.",
+      what: "The Nordic forge built to reach that tier, starting from a running community.",
       us: true,
     },
   ];
@@ -233,7 +233,7 @@ export function WhySlide() {
   const cols = [
     {
       t: "Why us",
-      d: "Three shipping communities, 1,000+ people already engaged and waiting for this to happen, partners already in — before a single euro of dedicated funding.",
+      d: "Three shipping communities, 1,000+ people already engaged and waiting for this to happen, partners already in, before a single euro of dedicated funding.",
     },
     {
       t: "Why now",
@@ -279,7 +279,7 @@ export function Footer() {
         <p className="sub">
           HSA ry owns Thinkin&apos; Rocks Oy, which operates the TAKOMO space. ASA and AROC are
           founding communities with their own governance and budgets. Legal and bookkeeping stay
-          separate across entities — TAKOMO holds no assets; the loop is the product.
+          separate across entities. TAKOMO holds no assets; the loop is the product.
         </p>
       </Reveal>
       <Reveal delay={0.15}>
@@ -290,7 +290,7 @@ export function Footer() {
       </Reveal>
       <Reveal delay={0.25}>
         <div className="footer-bottom">
-          <span>TAKOMO — Aalto Hardware Consortium</span>
+          <span>TAKOMO · Aalto Hardware Consortium</span>
           <span>From atoms to impact</span>
           <span>Otaniemi · Espoo · Finland</span>
         </div>

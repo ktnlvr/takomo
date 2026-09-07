@@ -4,44 +4,56 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { chromeMaterial, tungstenMaterial } from "./brand";
 
 /**
- * Metaballs that drift around a centerpiece. Balls losing themselves at the
- * edge of their area don't get clipped by the frame — their field strength
- * fades with distance, so the surface melts away soft and dim instead.
+ * Metaballs orbiting a centerpiece. They circle in a band outside the model
+ * so they never pass through it, and instead of getting clipped at the frame
+ * edge their field strength fades with distance, so the surface melts away.
  */
-export function makeMetaballs(size = 4.2, resolution = 28) {
+export function makeMetaballs(size = 4.2, resolution = 44) {
   const mat = new THREE.MeshPhysicalMaterial({
     color: 0xd8dee9,
     metalness: 1,
-    roughness: 0.18,
-    envMapIntensity: 1.2,
-    transparent: true,
-    opacity: 0.85,
+    roughness: 0.14,
+    envMapIntensity: 1.3,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.25,
   });
-  const mc = new MarchingCubes(resolution, mat, false, false, 20000);
+  const mc = new MarchingCubes(resolution, mat, false, false, 30000);
   mc.scale.setScalar(size / 2);
   mc.isolation = 70;
 
-  const balls = Array.from({ length: 5 }, (_, i) => ({
-    phase: (i / 5) * Math.PI * 2,
-    speed: 0.25 + (i % 3) * 0.09,
-    r: 0.16 + (i % 2) * 0.1,
-    tilt: (i % 2 ? 1 : -1) * (0.4 + i * 0.1),
+  // orbit band, in field coordinates (0..1, center 0.5):
+  // the centerpiece owns r < 0.30, the field dies past ~0.46
+  const R_MIN = 0.32;
+  const R_MAX = 0.44;
+
+  const balls = Array.from({ length: 6 }, (_, i) => ({
+    phase: (i / 6) * Math.PI * 2,
+    speed: (i % 2 ? 1 : -1) * (0.22 + (i % 3) * 0.07),
+    incl: (i / 6) * Math.PI, // each ball on its own orbital plane
+    breathe: 0.5 + (i % 3) * 0.3,
   }));
+
+  const axis = new THREE.Vector3();
+  const pos = new THREE.Vector3();
 
   const update = (t: number) => {
     mc.reset();
     for (const b of balls) {
       const a = t * b.speed + b.phase;
-      // wander: radius breathes, so balls regularly leave their core area
-      const wander = b.r + 0.16 * Math.sin(t * 0.5 + b.phase * 3);
-      const x = 0.5 + Math.cos(a) * wander;
-      const y = 0.5 + Math.sin(a * 0.8 + b.phase) * wander * b.tilt;
-      const z = 0.5 + Math.sin(a) * wander * 0.6;
-      // distance from the center of the field, 0..~0.5
+      // radius breathes across the band and occasionally past its outer edge
+      const r = THREE.MathUtils.lerp(R_MIN, R_MAX, 0.5 + 0.5 * Math.sin(t * b.breathe + b.phase)) +
+        0.05 * Math.sin(t * 0.3 + b.phase * 2);
+      // circular orbit tilted by the ball's inclination
+      pos.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      axis.set(Math.sin(b.incl), Math.cos(b.incl), 0).normalize();
+      pos.applyAxisAngle(axis, b.incl);
+      const x = 0.5 + pos.x;
+      const y = 0.5 + pos.y * 0.8;
+      const z = 0.5 + pos.z * 0.7;
       const d = Math.hypot(x - 0.5, y - 0.5, z - 0.5);
-      // full strength inside r=0.22, melts to nothing by r=0.44
-      const fade = THREE.MathUtils.clamp(1 - (d - 0.22) / 0.22, 0.05, 1);
-      mc.addBall(x, y, z, 0.34 * fade, 12);
+      // full strength inside the band, melts to nothing past it
+      const fade = THREE.MathUtils.clamp(1 - (d - R_MAX) / 0.08, 0.05, 1);
+      mc.addBall(x, y, z, 0.3 * fade, 14);
     }
     mc.update();
   };

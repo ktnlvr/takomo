@@ -46,7 +46,7 @@ export default function Hero() {
             <path d="M7 1v14M1.5 10L7 15.5 12.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </div>
-        <p>Scroll to forge</p>
+        <p>Scroll</p>
       </motion.div>
     </section>
   );

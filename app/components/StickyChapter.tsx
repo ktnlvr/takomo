@@ -94,7 +94,7 @@ function ChapterScene({
     group.add(obj);
 
     // liquid metal drifting around the centerpiece — melts away at the edge
-    const meta = makeMetaballs(isMobile ? 5.2 : 6.4, isMobile ? 22 : 30);
+    const meta = makeMetaballs(isMobile ? 5.6 : 6.8, isMobile ? 30 : 44);
     scene.add(meta.obj);
 
     const resize = () => {

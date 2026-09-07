@@ -63,7 +63,7 @@ body {
   position: absolute;
   inset: -20%;
   background:
-    radial-gradient(38% 45% at 74% 38%, rgba(163, 29, 69, 0.26) 0%, transparent 70%),
+    radial-gradient(38% 45% at 74% 38%, rgba(163, 29, 69, 0.16) 0%, transparent 70%),
     radial-gradient(24% 30% at 60% 68%, rgba(143, 232, 224, 0.07) 0%, transparent 70%);
   pointer-events: none;
 }
@@ -141,15 +141,13 @@ nav.topnav .links a:hover::before {
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 22px 24px;
-  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  transition: border-color 0.25s, background 0.25s;
 }
 
 .card:hover {
-  border-color: rgba(143, 232, 224, 0.4);
-  background: rgba(52, 22, 35, 0.6);
-  transform: translateY(-2px);
+  border-color: rgba(143, 232, 224, 0.35);
 }
 
 .card h3 {
@@ -171,15 +169,15 @@ nav.topnav .links a:hover::before {
   width: 32px;
   height: 32px;
   clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
-  background: linear-gradient(150deg, rgba(163, 29, 69, 0.4), rgba(92, 15, 38, 0.55));
-  color: var(--accent-soft);
+  background: rgba(163, 29, 69, 0.35);
+  color: #fff;
   font-family: var(--font-mono), monospace;
   font-size: 13px;
   font-weight: 600;
 }
 
 .num-badge.solid {
-  background: linear-gradient(150deg, #c62a55, var(--accent-deep));
+  background: var(--accent);
   color: #fff;
 }
 
@@ -201,7 +199,6 @@ nav.topnav .links a:hover::before {
 
 .headline .accent {
   color: #fff;
-  text-shadow: 0 0 30px rgba(198, 42, 85, 0.55);
 }
 
 .sub {
@@ -238,7 +235,7 @@ nav.topnav .links a:hover::before {
   letter-spacing: 0.04em;
   line-height: 1;
   color: #fff;
-  filter: drop-shadow(0 0 40px rgba(198, 42, 85, 0.45));
+  filter: drop-shadow(0 0 28px rgba(198, 42, 85, 0.3));
 }
 
 .hero-tag {
@@ -300,7 +297,7 @@ nav.topnav .links a:hover::before {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: chrome-sheen 7s ease-in-out infinite;
+  animation: chrome-sheen 12s ease-in-out infinite;
 }
 
 @keyframes chrome-sheen {
@@ -341,7 +338,7 @@ nav.topnav .links a:hover::before {
   text-align: center;
   padding: 13px 10px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: rgba(26, 11, 18, 0.7);
   font-weight: 600;
   font-size: 15px;
@@ -354,7 +351,7 @@ nav.topnav .links a:hover::before {
 }
 
 .pipeline .chip.solid {
-  background: linear-gradient(150deg, #c62a55, var(--accent-deep));
+  background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
@@ -423,7 +420,7 @@ nav.topnav .links a:hover::before {
   height: min(56vh, 560px);
   min-height: 340px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
   background:
     radial-gradient(60% 60% at 65% 30%, rgba(163, 29, 69, 0.12) 0%, transparent 70%),
@@ -507,7 +504,7 @@ nav.topnav .links a:hover::before {
   align-items: center;
   gap: 10px;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 3px;
   border: 1px solid transparent;
   color: var(--muted);
   background: none;
@@ -540,7 +537,7 @@ nav.topnav .links a:hover::before {
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   background: var(--bg-card);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 14px 16px;
   margin-top: 8px;
 }
@@ -635,7 +632,7 @@ nav.topnav .links a:hover::before {
 .sierpinski {
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 30px rgba(198, 42, 85, 0.3));
+  filter: drop-shadow(0 0 18px rgba(198, 42, 85, 0.22));
 }
 
 .sierpinski polygon {
