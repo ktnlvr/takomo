@@ -54,6 +54,8 @@ export default function BackgroundField() {
     let vy = new Float32Array(GW * GH);
     let tvx = new Float32Array(GW * GH);
     let tvy = new Float32Array(GW * GH);
+    // temporally + spatially smoothed pressure, for calm rendering
+    const press = new Float32Array(GW * GH);
 
     const stepFluid = () => {
       // one cheap diffusion pass + dissipation (no pressure solve; drift
@@ -222,11 +224,11 @@ export default function BackgroundField() {
       if (fluidOn && !fluidPaused) {
         stir(t);
         stepFluid();
-        // paint the field by local pressure: negative divergence (converging
-        // flow, high pressure) glows cherry, positive (low pressure) cools
-        // cyan; alpha follows magnitude (texture rows are bottom-up)
+        // paint the field by local pressure: converging flow (high pressure)
+        // warms toward cherry, diverging (low) cools toward cyan. The raw
+        // divergence is eased into a persistent field and averaged with its
+        // neighbours, so the picture drifts smoothly instead of flickering
         for (let j = 0; j < GH; j++) {
-          const row = (GH - 1 - j) * GW;
           const jn = Math.max(j - 1, 0) * GW;
           const js = Math.min(j + 1, GH - 1) * GW;
           for (let i = 0; i < GW; i++) {
@@ -234,10 +236,27 @@ export default function BackgroundField() {
             const ir = Math.min(i + 1, GW - 1);
             const div =
               (vx[j * GW + ir] - vx[j * GW + il] + vy[js + i] - vy[jn + i]) * 0.5;
-            const p = -div * 260; // pressure-ish: signed, scaled for display
+            const idx = j * GW + i;
+            press[idx] += (-div * 170 - press[idx]) * 0.06;
+          }
+        }
+        for (let j = 0; j < GH; j++) {
+          const row = (GH - 1 - j) * GW;
+          const jn = Math.max(j - 1, 0) * GW;
+          const js = Math.min(j + 1, GH - 1) * GW;
+          for (let i = 0; i < GW; i++) {
+            const idx = j * GW + i;
+            const p =
+              (press[idx] * 2 +
+                press[j * GW + Math.max(i - 1, 0)] +
+                press[j * GW + Math.min(i + 1, GW - 1)] +
+                press[jn + i] +
+                press[js + i]) /
+              6;
             const o = (row + i) * 4;
-            const mag = Math.min(Math.abs(p), 1);
-            if (mag > 0.02) {
+            // soft ramp: fades in gently around zero, saturates slowly
+            const mag = Math.min(p * p * 2.2, 1);
+            if (mag > 0.01) {
               if (p > 0) {
                 inkData[o] = 198;
                 inkData[o + 1] = 42;
@@ -247,7 +266,7 @@ export default function BackgroundField() {
                 inkData[o + 1] = 232;
                 inkData[o + 2] = 224;
               }
-              inkData[o + 3] = mag * 150;
+              inkData[o + 3] = mag * 105;
             } else {
               inkData[o + 3] = 0;
             }
