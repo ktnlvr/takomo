@@ -106,18 +106,20 @@ function ChapterScene({
           return g;
         };
         const trLogo = makeLogo("/tr-logo.svg", 3.4, 4.4);
+        const asaLogo = makeLogo("/asa-logo.svg", 12, 3.0);
         const arocLogo = makeLogo("/aroc-logo.svg", 24, 3.2);
 
         const wrap = new THREE.Group();
         wrap.add(holder);
         wrap.add(trLogo);
+        wrap.add(asaLogo);
         wrap.add(arocLogo);
         obj = wrap;
         objUpdate = (t) => {
           nut.rotation.y = -t * 0.7;
           // side-to-side wobble with a slight tilt; amplitudes stay well
           // under 90deg so the marks are never seen mirrored
-          for (const logo of [trLogo, arocLogo]) {
+          for (const logo of [trLogo, asaLogo, arocLogo]) {
             logo.rotation.y = Math.sin(t * 0.9) * 0.32;
             logo.rotation.z = Math.sin(t * 0.6 + 1) * 0.07;
             logo.rotation.x = Math.sin(t * 0.5) * 0.06;
@@ -125,8 +127,9 @@ function ChapterScene({
           // crossfade by scale: TR owns item 1, AROC item 3, the nut the rest
           const a = activeRef.current;
           const targets: [THREE.Group, boolean][] = [
-            [holder, a !== 1 && a !== 3],
+            [holder, a === 0],
             [trLogo, a === 1],
+            [asaLogo, a === 2],
             [arocLogo, a === 3],
           ];
           for (const [g, show] of targets) {
@@ -194,7 +197,7 @@ function ChapterScene({
       objUpdate?.(t);
       meta.update(t);
       const target = (activeRef.current / Math.max(count - 1, 1) - 0.5) * 0.9;
-      const logoShown = kind === "nut" && (activeRef.current === 1 || activeRef.current === 3);
+      const logoShown = kind === "nut" && activeRef.current > 0;
       if (logoShown) {
         // ease the drift back to face-on so the mark reads correctly
         const twoPi = Math.PI * 2;

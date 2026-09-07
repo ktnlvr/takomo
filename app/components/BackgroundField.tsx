@@ -7,9 +7,10 @@ import { makeEnvironment, makeHexNut, makeBolt, chromeMaterial } from "./brand";
 
 const COUNT = 14;
 
-// fluid: a velocity + two-dye grid the cursor stirs; pieces drift on the
-// velocity. Cherry ink marks fresh energy being injected at the cursor;
-// as the disturbance ages it cools into the cyan wake and dissipates
+// fluid: a velocity grid stirred by roving ambient sources and by the
+// cursor (no special treatment - it is just another stirrer). The field is
+// rendered by local pressure: converging flow glows cherry, diverging flow
+// cools cyan, which makes the vortices themselves visible
 const GW = 192;
 const GH = 108;
 
@@ -51,12 +52,8 @@ export default function BackgroundField() {
     // ── fluid grid ──────────────────────────────────
     let vx = new Float32Array(GW * GH);
     let vy = new Float32Array(GW * GH);
-    let dyeR = new Float32Array(GW * GH); // cherry: fresh disturbance
-    let dyeC = new Float32Array(GW * GH); // cyan: cooled wake
     let tvx = new Float32Array(GW * GH);
     let tvy = new Float32Array(GW * GH);
-    let tdyeR = new Float32Array(GW * GH);
-    let tdyeC = new Float32Array(GW * GH);
 
     const stepFluid = () => {
       // one cheap diffusion pass + dissipation (no pressure solve; drift
@@ -70,32 +67,40 @@ export default function BackgroundField() {
           const d = Math.min(j + 1, GH - 1) * GW + i;
           tvx[idx] = (vx[idx] * 4 + vx[l] + vx[r] + vx[u] + vx[d]) * 0.125 * 0.988;
           tvy[idx] = (vy[idx] * 4 + vy[l] + vy[r] + vy[u] + vy[d]) * 0.125 * 0.988;
-          const dr = (dyeR[idx] * 4 + dyeR[l] + dyeR[r] + dyeR[u] + dyeR[d]) * 0.125;
-          const dc = (dyeC[idx] * 4 + dyeC[l] + dyeC[r] + dyeC[u] + dyeC[d]) * 0.125;
-          // cherry ages into cyan, cyan dissipates
-          tdyeR[idx] = dr * 0.94;
-          tdyeC[idx] = dc * 0.975 + dr * 0.045;
         }
       }
       [vx, tvx] = [tvx, vx];
       [vy, tvy] = [tvy, vy];
-      [dyeR, tdyeR] = [tdyeR, dyeR];
-      [dyeC, tdyeC] = [tdyeC, dyeC];
     };
 
     const splat = (fx: number, fy: number, dx: number, dy: number) => {
       const cx = fx * GW;
       const cy = fy * GH;
       const R = 14;
-      const speed = Math.hypot(dx, dy);
       for (let j = Math.max(0, Math.floor(cy - R)); j < Math.min(GH, cy + R); j++) {
         for (let i = Math.max(0, Math.floor(cx - R)); i < Math.min(GW, cx + R); i++) {
           const fall = Math.exp(-((i - cx) ** 2 + (j - cy) ** 2) / (R * 4.5));
           const idx = j * GW + i;
           vx[idx] += dx * fall;
           vy[idx] += dy * fall;
-          dyeR[idx] = Math.min(dyeR[idx] + speed * fall * 2.2, 1);
         }
+      }
+    };
+
+    // roving ambient stirrers keep vortices alive with no cursor around;
+    // each pushes tangentially along its slow orbit
+    const stirrers = Array.from({ length: 3 }, (_, i) => ({
+      phase: (i / 3) * Math.PI * 2,
+      speed: (i % 2 ? 1 : -1) * (0.05 + i * 0.02),
+      rx: 0.3 + i * 0.06,
+      ry: 0.28 - i * 0.05,
+    }));
+    const stir = (t: number) => {
+      for (const st of stirrers) {
+        const a = t * st.speed + st.phase;
+        const x = 0.5 + Math.cos(a) * st.rx;
+        const y = 0.5 + Math.sin(a) * st.ry;
+        splat(x, y, -Math.sin(a) * st.speed * 0.55, Math.cos(a) * st.speed * 0.55);
       }
     };
 
@@ -215,23 +220,34 @@ export default function BackgroundField() {
       }
       ink.visible = fluidOn && !fluidPaused;
       if (fluidOn && !fluidPaused) {
+        stir(t);
         stepFluid();
-        // paint the ink: blend cherry and cyan by channel weight, alpha from
-        // total density (texture rows are bottom-up)
+        // paint the field by local pressure: negative divergence (converging
+        // flow, high pressure) glows cherry, positive (low pressure) cools
+        // cyan; alpha follows magnitude (texture rows are bottom-up)
         for (let j = 0; j < GH; j++) {
           const row = (GH - 1 - j) * GW;
+          const jn = Math.max(j - 1, 0) * GW;
+          const js = Math.min(j + 1, GH - 1) * GW;
           for (let i = 0; i < GW; i++) {
-            const idx = j * GW + i;
-            const r = dyeR[idx];
-            const c = dyeC[idx];
-            const w = r + c;
+            const il = Math.max(i - 1, 0);
+            const ir = Math.min(i + 1, GW - 1);
+            const div =
+              (vx[j * GW + ir] - vx[j * GW + il] + vy[js + i] - vy[jn + i]) * 0.5;
+            const p = -div * 260; // pressure-ish: signed, scaled for display
             const o = (row + i) * 4;
-            if (w > 0.003) {
-              const fr = r / w;
-              inkData[o] = 198 * fr + 143 * (1 - fr);
-              inkData[o + 1] = 42 * fr + 232 * (1 - fr);
-              inkData[o + 2] = 85 * fr + 224 * (1 - fr);
-              inkData[o + 3] = Math.min(w * 210, 190);
+            const mag = Math.min(Math.abs(p), 1);
+            if (mag > 0.02) {
+              if (p > 0) {
+                inkData[o] = 198;
+                inkData[o + 1] = 42;
+                inkData[o + 2] = 85;
+              } else {
+                inkData[o] = 143;
+                inkData[o + 1] = 232;
+                inkData[o + 2] = 224;
+              }
+              inkData[o + 3] = mag * 150;
             } else {
               inkData[o + 3] = 0;
             }
