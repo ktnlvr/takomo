@@ -32,8 +32,8 @@ export default function BackgroundField() {
     const fluidOn =
       window.innerWidth >= 700 && window.matchMedia("(pointer: fine)").matches;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
-    renderer.setPixelRatio(0.45);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(0.6);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
     const scene = new THREE.Scene();
@@ -164,7 +164,7 @@ export default function BackgroundField() {
 
     // floating metaballs drifting among the pieces, merging as they meet
     const META_SIZE = 16;
-    const mc = new MarchingCubes(28, chromeMaterial(0xc8d2e2), false, false, 20000);
+    const mc = new MarchingCubes(40, chromeMaterial(0xc8d2e2), false, false, 30000);
     mc.scale.setScalar(META_SIZE / 2);
     mc.position.z = -8;
     mc.isolation = 60;
