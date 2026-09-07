@@ -29,10 +29,10 @@ export default function SierpinskiCanvas() {
     const key = new THREE.DirectionalLight(0xffffff, 1.3);
     key.position.set(4, 6, 5);
     scene.add(key);
-    const cherry = new THREE.DirectionalLight(0xc62a55, 2.2);
-    cherry.position.set(-6, -2, -3);
-    scene.add(cherry);
-    scene.add(new THREE.AmbientLight(0x3a1622, 0.7));
+    const rim = new THREE.DirectionalLight(0xdfe8f5, 1.8);
+    rim.position.set(-6, -2, -3);
+    scene.add(rim);
+    scene.add(new THREE.AmbientLight(0x1c222c, 0.6));
 
     // recurse: each tetrahedron splits into four at its corners
     const dirs = [
@@ -55,7 +55,7 @@ export default function SierpinskiCanvas() {
     recurse(new THREE.Vector3(0, 0, 0), 2.2, DEPTH);
 
     const geo = new THREE.TetrahedronGeometry(1);
-    const mesh = new THREE.InstancedMesh(geo, chromeMaterial(0xd0a3b4), cells.length);
+    const mesh = new THREE.InstancedMesh(geo, chromeMaterial(), cells.length);
     const m = new THREE.Matrix4();
     cells.forEach((c, i) => {
       m.makeScale(c.r, c.r, c.r).setPosition(c.center);

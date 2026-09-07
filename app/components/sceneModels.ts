@@ -10,12 +10,12 @@ import { chromeMaterial, tungstenMaterial } from "./brand";
  */
 export function makeMetaballs(size = 4.2, resolution = 44) {
   const mat = new THREE.MeshPhysicalMaterial({
-    color: 0xd8dee9,
+    color: 0xc8d2e2,
     metalness: 1,
-    roughness: 0.14,
-    envMapIntensity: 1.3,
-    clearcoat: 0.4,
-    clearcoatRoughness: 0.25,
+    roughness: 0.05,
+    envMapIntensity: 2.0,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
   });
   const group = new THREE.Group();
   const mc = new MarchingCubes(resolution, mat, false, false, 30000);
@@ -108,11 +108,11 @@ export function makeDevBoard() {
     envMapIntensity: 0.9,
   });
   const chrome = chromeMaterial();
-  const cherry = new THREE.MeshPhysicalMaterial({
-    color: 0x8c1533,
-    metalness: 0.9,
-    roughness: 0.25,
-    envMapIntensity: 1.1,
+  const steel = new THREE.MeshPhysicalMaterial({
+    color: 0x6b7484,
+    metalness: 1,
+    roughness: 0.1,
+    envMapIntensity: 1.7,
   });
 
   // PCB
@@ -129,7 +129,7 @@ export function makeDevBoard() {
     g.add(fin);
   }
   // fan ring on the heatsink (the Kria giveaway)
-  const fan = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 20, 56), cherry);
+  const fan = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 20, 56), steel);
   fan.rotation.x = Math.PI / 2;
   fan.position.set(-0.35, 0.44, -0.1);
   g.add(fan);
@@ -147,7 +147,7 @@ export function makeDevBoard() {
 
   // seven-segment display row (the Nexys giveaway)
   for (let i = 0; i < 4; i++) {
-    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.3), cherry);
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.3), steel);
     seg.position.set(0.55 + i * 0.28, 0.1, 0.75);
     g.add(seg);
   }
@@ -174,7 +174,7 @@ export function makeDevBoard() {
   for (let i = 0; i < 14; i++) {
     const c = new THREE.Mesh(
       new THREE.BoxGeometry(0.07, 0.04, 0.11),
-      i % 3 ? chrome : cherry
+      i % 3 ? chrome : steel
     );
     c.position.set(-1.2 + (i % 7) * 0.38, 0.09, 0.1 + Math.floor(i / 7) * 0.35 - 0.55);
     c.rotation.y = (i % 2) * Math.PI * 0.5;
@@ -316,18 +316,18 @@ export function makeFlywheel() {
 export function makeBuildingExterior() {
   const g = new THREE.Group();
   const shell = new THREE.MeshPhysicalMaterial({
-    color: 0x574049,
+    color: 0x454c58,
     metalness: 0.4,
     roughness: 0.55,
   });
   const ours = new THREE.MeshPhysicalMaterial({
-    color: 0x8c1533,
-    metalness: 0.6,
-    roughness: 0.35,
-    emissive: 0x5c0f26,
-    emissiveIntensity: 0.4,
+    color: 0x4e8f88,
+    metalness: 0.7,
+    roughness: 0.25,
+    emissive: 0x1f4a45,
+    emissiveIntensity: 0.5,
   });
-  const glassStrip = new THREE.MeshBasicMaterial({ color: 0xf0d9e2 });
+  const glassStrip = new THREE.MeshBasicMaterial({ color: 0xdde7f2 });
 
   const addMass = (
     w: number, h: number, d: number, x: number, y: number, z: number,
@@ -338,7 +338,7 @@ export function makeBuildingExterior() {
     g.add(m);
     const e = new THREE.LineSegments(
       new THREE.EdgesGeometry(m.geometry),
-      new THREE.LineBasicMaterial({ color: 0xe8bcc9, transparent: true, opacity: 0.35 })
+      new THREE.LineBasicMaterial({ color: 0xc9d4e2, transparent: true, opacity: 0.35 })
     );
     e.position.copy(m.position);
     g.add(e);

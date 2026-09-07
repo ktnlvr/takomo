@@ -26,10 +26,10 @@ export default function BuildingCanvas() {
     const key = new THREE.DirectionalLight(0xfff2e8, 1.3);
     key.position.set(6, 9, 5);
     scene.add(key);
-    const cherry = new THREE.DirectionalLight(0xc62a55, 1.4);
-    cherry.position.set(-7, 3, -5);
-    scene.add(cherry);
-    scene.add(new THREE.AmbientLight(0x55303c, 0.8));
+    const rim = new THREE.DirectionalLight(0xcfdcec, 1.2);
+    rim.position.set(-7, 3, -5);
+    scene.add(rim);
+    scene.add(new THREE.AmbientLight(0x2a323e, 0.8));
 
     const { obj } = makeBuildingExterior();
     scene.add(obj);

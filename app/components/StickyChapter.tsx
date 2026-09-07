@@ -54,17 +54,21 @@ function ChapterScene({
     const key = new THREE.DirectionalLight(0xffffff, 1.4);
     key.position.set(4, 6, 5);
     scene.add(key);
-    // cherry rim + cyan fill: the palette lives in the light
-    const cherry = new THREE.DirectionalLight(0xc62a55, 2.4);
-    cherry.position.set(-6, -2, -3);
-    scene.add(cherry);
-    const cyan = new THREE.DirectionalLight(0x8fe8e0, 1.1);
+    // steel rim + cyan fill; specular contrast comes from the env map
+    const rim = new THREE.DirectionalLight(0xdfe8f5, 2.0);
+    rim.position.set(-6, -2, -3);
+    scene.add(rim);
+    const cyan = new THREE.DirectionalLight(0x8fe8e0, 0.9);
     cyan.position.set(5, -3, 2);
     scene.add(cyan);
-    scene.add(new THREE.AmbientLight(0x3a1622, 0.7));
+    scene.add(new THREE.AmbientLight(0x1c222c, 0.5));
 
+    // root holds the centerpiece and its metaballs; the canvas spans the whole
+    // chapter, so push the root right to leave the left half to the text
+    const root = new THREE.Group();
+    scene.add(root);
     const group = new THREE.Group();
-    scene.add(group);
+    root.add(group);
 
     let objUpdate: ((t: number) => void) | undefined;
     let obj: THREE.Object3D;
@@ -104,7 +108,7 @@ function ChapterScene({
 
     // liquid metal drifting around the centerpiece — melts away at the edge
     const meta = makeMetaballs(isMobile ? 5.6 : 6.8, isMobile ? 30 : 44);
-    scene.add(meta.obj);
+    root.add(meta.obj);
 
     const resize = () => {
       const parent = canvas.parentElement!;
@@ -114,6 +118,8 @@ function ChapterScene({
       camera.aspect = w / h;
       camera.position.z = isMobile ? 7.0 : 5.8;
       camera.updateProjectionMatrix();
+      const halfW = Math.tan(THREE.MathUtils.degToRad(21)) * camera.position.z * camera.aspect;
+      root.position.x = isMobile ? 0 : halfW * 0.48;
     };
     resize();
     const ro = new ResizeObserver(resize);
@@ -201,6 +207,14 @@ export default function StickyChapter({
 
   return (
     <section id={id} className="chapter" ref={rootRef}>
+      <div className="chapter-visual">
+        <ChapterScene kind={scene} activeIndex={active} count={items.length} />
+        <div className="chapter-progress">
+          {items.map((_, i) => (
+            <div key={i} className={`notch ${i === active ? "active" : ""}`} />
+          ))}
+        </div>
+      </div>
       <div className="chapter-left">
         {items.map((item, i) => (
           <div
@@ -216,14 +230,6 @@ export default function StickyChapter({
             <div className="body">{item.body}</div>
           </div>
         ))}
-      </div>
-      <div className="chapter-visual">
-        <ChapterScene kind={scene} activeIndex={active} count={items.length} />
-        <div className="chapter-progress">
-          {items.map((_, i) => (
-            <div key={i} className={`notch ${i === active ? "active" : ""}`} />
-          ))}
-        </div>
       </div>
     </section>
   );

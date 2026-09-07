@@ -1,6 +1,7 @@
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import SnapScroll from "./components/SnapScroll";
+import BackgroundField from "./components/BackgroundField";
 import FloorPlanSection from "./components/FloorPlanSection";
 import StickyChapter from "./components/StickyChapter";
 import {
@@ -17,6 +18,7 @@ export default function Home() {
     <main id="top">
       <Nav />
       <SnapScroll />
+      <BackgroundField />
       <Hero />
 
       <StickyChapter

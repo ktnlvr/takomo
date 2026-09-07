@@ -39,10 +39,10 @@ export default function HeroCanvas() {
     const key = new THREE.DirectionalLight(0xffffff, 1.6);
     key.position.set(4, 6, 5);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0x3b6ef6, 2.2);
+    const rim = new THREE.DirectionalLight(0xdfe8f5, 1.8);
     rim.position.set(-6, -2, -4);
     scene.add(rim);
-    scene.add(new THREE.AmbientLight(0x223055, 0.6));
+    scene.add(new THREE.AmbientLight(0x1c222c, 0.5));
 
     const group = new THREE.Group();
     scene.add(group);

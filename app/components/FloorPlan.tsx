@@ -37,7 +37,7 @@ export const ZONES: Zone[] = [
     id: "hall",
     name: "Hardware Hall",
     desc: "The big hall right after the choke point. Persistent robotics competition arenas, robotics setups, and long-running builds that stay assembled.",
-    color: "#c62a55",
+    color: "#6fd3c8",
     marker: "bolt",
     x: 2, z: 0.5, w: 20, d: 11.5, h: 2.4,
   },
@@ -53,7 +53,7 @@ export const ZONES: Zone[] = [
     id: "quick",
     name: "Quick-Access Storage",
     desc: "Parts, components, fasteners, and consumables next to the machine shop. Iteration is fast when the part you need is ten meters away.",
-    color: "#7a3b52",
+    color: "#5c6b85",
     marker: "stack",
     x: 33.5, z: 0.5, w: 9.5, d: 8.5, h: 1.0,
   },
@@ -69,7 +69,7 @@ export const ZONES: Zone[] = [
     id: "cowork",
     name: "Coworking / Innovation Space",
     desc: "Whiteboards and desks at the east end, where projects get planned and designed before they hit the machines.",
-    color: "#e0577f",
+    color: "#9db4d8",
     marker: "ring",
     x: 55, z: 0.5, w: 12.5, d: 18, h: 1.1,
   },
@@ -85,7 +85,7 @@ export const ZONES: Zone[] = [
     id: "machine",
     name: "Machine Shop",
     desc: "CNCs, 3D printers, and everything loud, accessible straight from the lobby.",
-    color: "#c62a55",
+    color: "#6fd3c8",
     marker: "nut",
     x: 33.5, z: 10.5, w: 12.5, d: 8, h: 1.5,
   },
@@ -93,7 +93,7 @@ export const ZONES: Zone[] = [
     id: "storage",
     name: "Storage Units",
     desc: "Units for servers, items, and member projects. Some of them refrigerated.",
-    color: "#7a3b52",
+    color: "#5c6b85",
     marker: "cube",
     x: 22.5, z: 13, w: 10.5, d: 5.5, h: 1.2,
   },
@@ -101,7 +101,7 @@ export const ZONES: Zone[] = [
     id: "asa",
     name: "ASA Clubroom",
     desc: "Home base for the Aalto Space Association, in the office row under the hardware hall.",
-    color: "#c8a7b4",
+    color: "#a8b8c8",
     marker: "sat",
     x: 2, z: 13, w: 4, d: 5.5, h: 1.0,
   },
@@ -109,7 +109,7 @@ export const ZONES: Zone[] = [
     id: "office1",
     name: "Staff Office",
     desc: "Day-to-day operations of the space: memberships, partners, logistics.",
-    color: "#8b7580",
+    color: "#7a8494",
     marker: "puck",
     x: 6.2, z: 13, w: 4, d: 5.5, h: 1.0,
   },
@@ -117,7 +117,7 @@ export const ZONES: Zone[] = [
     id: "office2",
     name: "Staff Office",
     desc: "A second office for staff.",
-    color: "#8b7580",
+    color: "#7a8494",
     marker: "puck",
     x: 10.4, z: 13, w: 4, d: 5.5, h: 1.0,
   },
@@ -125,7 +125,7 @@ export const ZONES: Zone[] = [
     id: "q1",
     name: "?",
     desc: "Unassigned. Could become a community room or a partner lab.",
-    color: "#5c4a52",
+    color: "#4a525e",
     marker: "question",
     x: 14.6, z: 13, w: 3.6, d: 5.5, h: 1.0,
   },
@@ -133,7 +133,7 @@ export const ZONES: Zone[] = [
     id: "q2",
     name: "?",
     desc: "Also unassigned. The floor plan is a proposal; the community fills it in.",
-    color: "#5c4a52",
+    color: "#4a525e",
     marker: "question",
     x: 18.4, z: 13, w: 3.6, d: 5.5, h: 1.0,
   },
@@ -261,11 +261,11 @@ export default function FloorPlan() {
     const lookTarget = lookHome.clone();
     let zoomFactor = 1;
 
-    scene.add(new THREE.AmbientLight(0xcc8899, 0.5));
+    scene.add(new THREE.AmbientLight(0x8fa0b8, 0.5));
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
     key.position.set(20, 35, 15);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0xc62a55, 1.1);
+    const rim = new THREE.DirectionalLight(0xcfdcec, 1.0);
     rim.position.set(-30, 12, -20);
     scene.add(rim);
     const fill = new THREE.DirectionalLight(0x8fe8e0, 0.5);
