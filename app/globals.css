@@ -17,11 +17,17 @@ html {
   scroll-behavior: auto;
 }
 
+html {
+  background: var(--bg);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  /* body stays transparent: an opaque body background would paint over
+     the fixed z-index:-1 field and hide it entirely */
+  background: transparent;
   color: var(--text);
   font-family: var(--font-inter), Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -851,7 +857,7 @@ nav.topnav .links a:hover::before {
   width: 100%;
   height: 100%;
   display: block;
-  filter: blur(6px);
-  opacity: 0.5;
+  filter: blur(5px);
+  opacity: 0.65;
 }
 

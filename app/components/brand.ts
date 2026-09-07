@@ -91,12 +91,41 @@ export function makeBolt(size = 1, mat?: THREE.Material) {
   return g;
 }
 
-/** The tungsten piece: a plain dodecahedron. */
-export function makeTungstenCube(size = 1, mat?: THREE.Material) {
-  const mesh = new THREE.Mesh(
-    new THREE.DodecahedronGeometry(size * 0.62, 0),
-    mat ?? tungstenMaterial()
+// dodecahedron face normals = icosahedron vertex directions
+const PHI = (1 + Math.sqrt(5)) / 2;
+const DODECA_NORMALS: THREE.Vector3[] = [];
+for (const [a, b] of [
+  [1, PHI],
+  [-1, PHI],
+  [1, -PHI],
+  [-1, -PHI],
+]) {
+  DODECA_NORMALS.push(
+    new THREE.Vector3(a, b, 0).normalize(),
+    new THREE.Vector3(0, a, b).normalize(),
+    new THREE.Vector3(b, 0, a).normalize()
   );
+}
+
+/**
+ * The tungsten piece: a dodecahedron with generously rounded edges — a
+ * dense sphere clamped against the twelve face planes, smooth-shaded.
+ */
+export function makeTungstenCube(size = 1, mat?: THREE.Material) {
+  const geo = new THREE.IcosahedronGeometry(size * 0.62, 5);
+  const posAttr = geo.attributes.position;
+  const v = new THREE.Vector3();
+  const flat = size * 0.5; // deep clamp = wide, soft bevel band
+  for (let i = 0; i < posAttr.count; i++) {
+    v.fromBufferAttribute(posAttr, i);
+    for (const n of DODECA_NORMALS) {
+      const d = v.dot(n);
+      if (d > flat) v.addScaledVector(n, flat - d);
+    }
+    posAttr.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, mat ?? tungstenMaterial());
   const g = new THREE.Group();
   g.add(mesh);
   return g;
