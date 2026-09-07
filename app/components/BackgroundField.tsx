@@ -6,10 +6,16 @@ import { makeEnvironment, makeHexNut, makeBolt, chromeMaterial } from "./brand";
 
 const COUNT = 14;
 
+// invisible fluid: a coarse velocity grid the cursor stirs; pieces drift on it
+const GW = 48;
+const GH = 27;
+
 /**
  * Blurred nuts and bolts drifting behind the whole page. Rendered at a low
- * pixel ratio (the CSS blur hides it) and parallaxed against scroll; each
- * piece's spin rate follows how fast it is moving across the screen.
+ * pixel ratio (the CSS blur hides it) and parallaxed against scroll. An
+ * invisible fluid field guides their motion: moving the cursor injects
+ * velocity into the field, and the pieces visibly shift direction with the
+ * current. Spin rate follows how fast a piece moves across the screen.
  */
 export default function BackgroundField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,33 +40,99 @@ export default function BackgroundField() {
     scene.add(key);
     scene.add(new THREE.AmbientLight(0x1c222c, 0.6));
 
+    // ── fluid grid ──────────────────────────────────
+    let vx = new Float32Array(GW * GH);
+    let vy = new Float32Array(GW * GH);
+    let tvx = new Float32Array(GW * GH);
+    let tvy = new Float32Array(GW * GH);
+
+    const stepFluid = () => {
+      // one cheap diffusion pass + dissipation (no pressure solve — the
+      // fluid is invisible, only its drift matters)
+      for (let j = 0; j < GH; j++) {
+        for (let i = 0; i < GW; i++) {
+          const idx = j * GW + i;
+          const l = j * GW + Math.max(i - 1, 0);
+          const r = j * GW + Math.min(i + 1, GW - 1);
+          const u = Math.max(j - 1, 0) * GW + i;
+          const d = Math.min(j + 1, GH - 1) * GW + i;
+          tvx[idx] = (vx[idx] * 4 + vx[l] + vx[r] + vx[u] + vx[d]) * 0.125 * 0.988;
+          tvy[idx] = (vy[idx] * 4 + vy[l] + vy[r] + vy[u] + vy[d]) * 0.125 * 0.988;
+        }
+      }
+      [vx, tvx] = [tvx, vx];
+      [vy, tvy] = [tvy, vy];
+    };
+
+    const splat = (fx: number, fy: number, dx: number, dy: number) => {
+      const cx = fx * GW;
+      const cy = fy * GH;
+      const R = 4;
+      for (let j = Math.max(0, Math.floor(cy - R)); j < Math.min(GH, cy + R); j++) {
+        for (let i = Math.max(0, Math.floor(cx - R)); i < Math.min(GW, cx + R); i++) {
+          const fall = Math.exp(-((i - cx) ** 2 + (j - cy) ** 2) / (R * 1.4));
+          const idx = j * GW + i;
+          vx[idx] += dx * fall;
+          vy[idx] += dy * fall;
+        }
+      }
+    };
+
+    const sample = (fx: number, fy: number) => {
+      const i = THREE.MathUtils.clamp(Math.round(fx * GW), 0, GW - 1);
+      const j = THREE.MathUtils.clamp(Math.round(fy * GH), 0, GH - 1);
+      const idx = j * GW + i;
+      return [vx[idx], vy[idx]];
+    };
+
+    let lastMX = -1;
+    let lastMY = -1;
+    const onPointer = (e: PointerEvent) => {
+      const fx = e.clientX / window.innerWidth;
+      const fy = e.clientY / window.innerHeight;
+      if (lastMX >= 0) {
+        splat(fx, fy, (fx - lastMX) * 30, (fy - lastMY) * 30);
+      }
+      lastMX = fx;
+      lastMY = fy;
+    };
+    window.addEventListener("pointermove", onPointer, { passive: true });
+
+    // ── pieces ──────────────────────────────────────
     const chrome = chromeMaterial();
     interface Piece {
       obj: THREE.Object3D;
-      depth: number; // parallax factor, deeper moves less
+      depth: number;
       baseX: number;
       baseY: number;
       drift: number;
       spin: number;
+      lastX: number;
       lastY: number;
+      flowX: number;
+      flowY: number;
       axis: THREE.Vector3;
     }
     const pieces: Piece[] = [];
-    const WRAP = 26; // vertical world range pieces wrap around in
+    const WRAP = 26;
 
     for (let i = 0; i < COUNT; i++) {
-      const obj = i % 2 ? makeHexNut(0.5 + (i % 3) * 0.22, chrome) : makeBolt(0.32 + (i % 3) * 0.13, chrome);
+      const obj =
+        i % 2 ? makeHexNut(0.5 + (i % 3) * 0.22, chrome) : makeBolt(0.32 + (i % 3) * 0.13, chrome);
       const depth = 0.25 + (i / COUNT) * 0.65;
       obj.position.z = -3 - depth * 9;
       scene.add(obj);
       pieces.push({
         obj,
         depth,
-        baseX: (Math.random() - 0.5) * 2, // fraction of the visible width
+        baseX: (Math.random() - 0.5) * 2,
         baseY: Math.random() * WRAP,
         drift: (Math.random() - 0.5) * 0.15,
         spin: 0,
+        lastX: 0,
         lastY: 0,
+        flowX: 0,
+        flowY: 0,
         axis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
       });
     }
@@ -81,21 +153,39 @@ export default function BackgroundField() {
       raf = requestAnimationFrame(tick);
       const t = clock.getElapsedTime();
       const scroll = window.scrollY;
+      stepFluid();
 
       pieces.forEach((p, i) => {
-        // parallax: near pieces track scroll harder than deep ones
-        const y =
-          ((p.baseY + scroll * 0.004 * (1.2 - p.depth) + t * 0.15 * p.depth) % WRAP + WRAP) % WRAP -
-          WRAP / 2;
         const dist = camera.position.z - p.obj.position.z;
         const halfW = Math.tan(THREE.MathUtils.degToRad(22.5)) * dist * camera.aspect;
-        p.obj.position.x = p.baseX * halfW + Math.sin(t * 0.1 + i) * p.drift * halfW;
+        const halfH = halfW / camera.aspect;
+
+        // parallax: near pieces track scroll harder than deep ones
+        const wrapY =
+          ((p.baseY + scroll * 0.004 * (1.2 - p.depth) + t * 0.15 * p.depth) % WRAP + WRAP) %
+            WRAP -
+          WRAP / 2;
+        const restX = p.baseX * halfW + Math.sin(t * 0.1 + i) * p.drift * halfW;
+
+        // sample the fluid at this piece's screen position and ride it;
+        // near pieces feel the current more than deep ones
+        const sx = THREE.MathUtils.clamp(p.obj.position.x / halfW / 2 + 0.5, 0, 1);
+        const sy = THREE.MathUtils.clamp(0.5 - p.obj.position.y / halfH / 2, 0, 1);
+        const [fx, fy] = sample(sx, sy);
+        const feel = (1.3 - p.depth) * 0.08 * dist;
+        p.flowX = p.flowX * 0.95 + fx * feel;
+        p.flowY = p.flowY * 0.95 - fy * feel;
+
+        const x = restX + p.flowX;
+        const y = wrapY + p.flowY;
+        p.obj.position.x = x;
         p.obj.position.y = y;
 
-        // spin follows movement across the screen
-        const vel = Math.abs(y - p.lastY);
+        // spin follows total movement across the screen
+        const vel = Math.hypot(x - p.lastX, y - p.lastY);
+        p.lastX = x;
         p.lastY = y;
-        p.spin = THREE.MathUtils.lerp(p.spin, Math.min(vel * 6, 0.25), 0.08);
+        p.spin = THREE.MathUtils.lerp(p.spin, Math.min(vel * 6, 0.3), 0.08);
         q.setFromAxisAngle(p.axis, p.spin + 0.002);
         p.obj.quaternion.premultiply(q);
       });
@@ -107,6 +197,7 @@ export default function BackgroundField() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", onPointer);
       scene.traverse((o) => {
         if (o instanceof THREE.Mesh) {
           o.geometry.dispose();
