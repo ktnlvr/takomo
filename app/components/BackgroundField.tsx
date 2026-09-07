@@ -7,8 +7,9 @@ import { makeEnvironment, makeHexNut, makeBolt, chromeMaterial } from "./brand";
 
 const COUNT = 14;
 
-// fluid: a velocity + ink grid the cursor stirs; pieces drift on the
-// velocity, the ink renders as dense blackness where the fluid moves
+// fluid: a velocity + two-dye grid the cursor stirs; pieces drift on the
+// velocity. Cherry ink marks fresh energy being injected at the cursor;
+// as the disturbance ages it cools into the cyan wake and dissipates
 const GW = 192;
 const GH = 108;
 
@@ -50,10 +51,12 @@ export default function BackgroundField() {
     // ── fluid grid ──────────────────────────────────
     let vx = new Float32Array(GW * GH);
     let vy = new Float32Array(GW * GH);
-    let dye = new Float32Array(GW * GH);
+    let dyeR = new Float32Array(GW * GH); // cherry: fresh disturbance
+    let dyeC = new Float32Array(GW * GH); // cyan: cooled wake
     let tvx = new Float32Array(GW * GH);
     let tvy = new Float32Array(GW * GH);
-    let tdye = new Float32Array(GW * GH);
+    let tdyeR = new Float32Array(GW * GH);
+    let tdyeC = new Float32Array(GW * GH);
 
     const stepFluid = () => {
       // one cheap diffusion pass + dissipation (no pressure solve; drift
@@ -67,12 +70,17 @@ export default function BackgroundField() {
           const d = Math.min(j + 1, GH - 1) * GW + i;
           tvx[idx] = (vx[idx] * 4 + vx[l] + vx[r] + vx[u] + vx[d]) * 0.125 * 0.988;
           tvy[idx] = (vy[idx] * 4 + vy[l] + vy[r] + vy[u] + vy[d]) * 0.125 * 0.988;
-          tdye[idx] = (dye[idx] * 4 + dye[l] + dye[r] + dye[u] + dye[d]) * 0.125 * 0.972;
+          const dr = (dyeR[idx] * 4 + dyeR[l] + dyeR[r] + dyeR[u] + dyeR[d]) * 0.125;
+          const dc = (dyeC[idx] * 4 + dyeC[l] + dyeC[r] + dyeC[u] + dyeC[d]) * 0.125;
+          // cherry ages into cyan, cyan dissipates
+          tdyeR[idx] = dr * 0.94;
+          tdyeC[idx] = dc * 0.975 + dr * 0.045;
         }
       }
       [vx, tvx] = [tvx, vx];
       [vy, tvy] = [tvy, vy];
-      [dye, tdye] = [tdye, dye];
+      [dyeR, tdyeR] = [tdyeR, dyeR];
+      [dyeC, tdyeC] = [tdyeC, dyeC];
     };
 
     const splat = (fx: number, fy: number, dx: number, dy: number) => {
@@ -86,7 +94,7 @@ export default function BackgroundField() {
           const idx = j * GW + i;
           vx[idx] += dx * fall;
           vy[idx] += dy * fall;
-          dye[idx] = Math.min(dye[idx] + speed * fall * 2.2, 1);
+          dyeR[idx] = Math.min(dyeR[idx] + speed * fall * 2.2, 1);
         }
       }
     };
@@ -169,8 +177,8 @@ export default function BackgroundField() {
       strength: 0.1 + (i % 3) * 0.05,
     }));
 
-    // the ink layer: black where the fluid is moving, in front of the pieces
-    const inkData = new Uint8Array(GW * GH * 4); // stays zeroed except alpha
+    // the ink layer: cherry-to-cyan where the fluid moves, in front of the pieces
+    const inkData = new Uint8Array(GW * GH * 4);
     const inkTex = new THREE.DataTexture(inkData, GW, GH, THREE.RGBAFormat);
     inkTex.magFilter = THREE.LinearFilter;
     inkTex.minFilter = THREE.LinearFilter;
@@ -208,11 +216,25 @@ export default function BackgroundField() {
       ink.visible = fluidOn && !fluidPaused;
       if (fluidOn && !fluidPaused) {
         stepFluid();
-        // paint the ink: alpha from dye density (texture rows are bottom-up)
+        // paint the ink: blend cherry and cyan by channel weight, alpha from
+        // total density (texture rows are bottom-up)
         for (let j = 0; j < GH; j++) {
           const row = (GH - 1 - j) * GW;
           for (let i = 0; i < GW; i++) {
-            inkData[(row + i) * 4 + 3] = Math.min(dye[j * GW + i] * 235, 215);
+            const idx = j * GW + i;
+            const r = dyeR[idx];
+            const c = dyeC[idx];
+            const w = r + c;
+            const o = (row + i) * 4;
+            if (w > 0.003) {
+              const fr = r / w;
+              inkData[o] = 198 * fr + 143 * (1 - fr);
+              inkData[o + 1] = 42 * fr + 232 * (1 - fr);
+              inkData[o + 2] = 85 * fr + 224 * (1 - fr);
+              inkData[o + 3] = Math.min(w * 210, 190);
+            } else {
+              inkData[o + 3] = 0;
+            }
           }
         }
         inkTex.needsUpdate = true;

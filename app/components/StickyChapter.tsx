@@ -82,7 +82,7 @@ function ChapterScene({
         holder.rotation.x = Math.PI / 2;
 
         // community logos, extruded chrome; each owns its item in the chapter
-        const makeLogo = (url: string, depth: number, bevel: number, targetW: number) => {
+        const makeLogo = (url: string, depth: number, targetW: number) => {
           const g = new THREE.Group();
           g.scale.setScalar(0.001);
           new SVGLoader().load(url, (data) => {
@@ -90,13 +90,7 @@ function ChapterScene({
             const inner = new THREE.Group();
             for (const path of data.paths) {
               for (const shape of SVGLoader.createShapes(path)) {
-                const geo = new THREE.ExtrudeGeometry(shape, {
-                  depth,
-                  bevelEnabled: true,
-                  bevelThickness: bevel,
-                  bevelSize: bevel,
-                  bevelSegments: 3,
-                });
+                const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false });
                 inner.add(new THREE.Mesh(geo, mat));
               }
             }
@@ -111,8 +105,8 @@ function ChapterScene({
           });
           return g;
         };
-        const trLogo = makeLogo("/tr-logo.svg", 3.4, 0.35, 4.4);
-        const arocLogo = makeLogo("/aroc-logo.svg", 24, 2.4, 3.2);
+        const trLogo = makeLogo("/tr-logo.svg", 3.4, 4.4);
+        const arocLogo = makeLogo("/aroc-logo.svg", 24, 3.2);
 
         const wrap = new THREE.Group();
         wrap.add(holder);

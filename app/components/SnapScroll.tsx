@@ -15,7 +15,12 @@ export default function SnapScroll() {
 
   useLenis((lenis) => {
     if (snapRef.current) return;
-    const snap = new Snap(lenis, { type: "mandatory", duration: 0.6 });
+    const snap = new Snap(lenis, {
+      type: "mandatory",
+      duration: 0.38,
+      debounce: 120,
+      easing: (t) => 1 - Math.pow(2, -10 * t), // hard expo-out: locks in fast
+    });
     snapRef.current = snap;
 
     const seen = new Set<Element>();
