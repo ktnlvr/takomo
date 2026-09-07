@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 import { makeEnvironment, makeHexNut, chromeMaterial } from "./brand";
 import {
   makeMetaballs,
@@ -79,9 +80,46 @@ function ChapterScene({
         const holder = new THREE.Group();
         holder.add(nut);
         holder.rotation.x = Math.PI / 2;
-        obj = holder;
+
+        // on the Thinkin' Rocks item the nut hands over to their extruded logo
+        const logo = new THREE.Group();
+        logo.scale.setScalar(0.001);
+        new SVGLoader().load("/tr-logo.svg", (data) => {
+          const mat = chromeMaterial();
+          const inner = new THREE.Group();
+          for (const path of data.paths) {
+            for (const shape of SVGLoader.createShapes(path)) {
+              const geo = new THREE.ExtrudeGeometry(shape, {
+                depth: 3.4,
+                bevelEnabled: true,
+                bevelThickness: 0.35,
+                bevelSize: 0.35,
+                bevelSegments: 3,
+              });
+              inner.add(new THREE.Mesh(geo, mat));
+            }
+          }
+          // svg y points down; center the mark and size it for the pane
+          inner.scale.set(0.11, -0.11, 0.11);
+          const box = new THREE.Box3().setFromObject(inner);
+          const c = box.getCenter(new THREE.Vector3());
+          inner.position.sub(c);
+          logo.add(inner);
+        });
+
+        const wrap = new THREE.Group();
+        wrap.add(holder);
+        wrap.add(logo);
+        obj = wrap;
         objUpdate = (t) => {
           nut.rotation.y = -t * 0.7;
+          logo.rotation.y = Math.sin(t * 0.5) * 0.35;
+          // crossfade by scale: logo owns item 1, the nut owns the rest
+          const showLogo = activeRef.current === 1;
+          const ns = THREE.MathUtils.lerp(holder.scale.x, showLogo ? 0.001 : 1, 0.07);
+          const ls = THREE.MathUtils.lerp(logo.scale.x, showLogo ? 1 : 0.001, 0.07);
+          holder.scale.setScalar(ns);
+          logo.scale.setScalar(ls);
         };
         break;
       }
