@@ -291,20 +291,8 @@ export function makeFlywheel() {
   wheel.add(nut);
   g.add(wheel);
 
-  // beads circulating around the rim: what goes around comes around
-  const beads: THREE.Mesh[] = [];
-  for (let i = 0; i < 8; i++) {
-    const bead = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 24), chrome);
-    g.add(bead);
-    beads.push(bead);
-  }
-
   const update = (t: number) => {
     wheel.rotation.z = -t * 0.7;
-    beads.forEach((b, i) => {
-      const a = t * 0.7 + (i / beads.length) * Math.PI * 2;
-      b.position.set(Math.cos(a) * 1.45, Math.sin(a) * 1.45, 0.22 * Math.sin(t + i));
-    });
   };
   return { obj: g, update };
 }

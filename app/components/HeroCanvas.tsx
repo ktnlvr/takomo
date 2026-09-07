@@ -2,12 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { MarchingCubes } from "three/examples/jsm/objects/MarchingCubes.js";
 import {
   makeEnvironment,
   makeHexNut,
   makeBolt,
   makeTungstenCube,
-  makeLiquidBlob,
   chromeMaterial,
   tungstenMaterial,
 } from "./brand";
@@ -47,9 +47,20 @@ export default function HeroCanvas() {
     const group = new THREE.Group();
     scene.add(group);
 
-    // liquid metal core
-    const blob = makeLiquidBlob(1.05, isMobile ? 28 : 48);
-    group.add(blob.mesh);
+    // liquid metal core as a marching-cubes field; the orbiting nut, bolt,
+    // and dodecahedron each feed a ball into the field at their position,
+    // so the liquid stretches toward them and merges when they pass close
+    const FIELD = 7.6; // world size the 0..1 field maps onto
+    const mc = new MarchingCubes(
+      isMobile ? 32 : 44,
+      chromeMaterial(0xc8d2e2),
+      false,
+      false,
+      30000
+    );
+    mc.scale.setScalar(FIELD / 2);
+    mc.isolation = 70;
+    group.add(mc);
 
     // orbiters
     const chrome = chromeMaterial();
@@ -116,8 +127,15 @@ export default function HeroCanvas() {
       raf = requestAnimationFrame(tick);
       const t = clock.getElapsedTime();
 
-      blob.update(t);
-      blob.mesh.rotation.y = t * 0.15;
+      mc.reset();
+      // wobbling core
+      mc.addBall(
+        0.5 + 0.02 * Math.sin(t * 1.3),
+        0.5 + 0.02 * Math.sin(t * 1.7),
+        0.5 + 0.02 * Math.cos(t * 1.1),
+        0.42,
+        12
+      );
 
       orbiters.forEach((o, i) => {
         const a = t * o.speed + o.phase;
@@ -128,7 +146,16 @@ export default function HeroCanvas() {
         );
         o.obj.rotation.x = t * (0.4 + i * 0.13);
         o.obj.rotation.y = t * (0.5 - i * 0.1);
+        // each orbiter is itself a metaball source
+        mc.addBall(
+          0.5 + o.obj.position.x / FIELD,
+          0.5 + o.obj.position.y / FIELD,
+          0.5 + o.obj.position.z / FIELD,
+          0.16,
+          12
+        );
       });
+      mc.update();
 
       group.rotation.y = t * 0.06 + mouseX * 0.3;
       group.rotation.x = mouseY * 0.14 + Math.sin(t * 0.4) * 0.03;
