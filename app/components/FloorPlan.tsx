@@ -564,8 +564,22 @@ export default function FloorPlan() {
     const wrap = wrapRef.current;
     if (!wrap) return;
 
+    let stableVh = window.innerHeight;
+    let lastW = window.innerWidth;
+    const onViewport = () => {
+      // only accept real changes (rotation, window resize), not URL-bar shifts
+      if (
+        window.innerWidth !== lastW ||
+        Math.abs(window.innerHeight - stableVh) > 150
+      ) {
+        stableVh = window.innerHeight;
+        lastW = window.innerWidth;
+      }
+    };
+    window.addEventListener("resize", onViewport);
+
     const onScroll = () => {
-      const vh = window.innerHeight;
+      const vh = stableVh;
       // a manual selection holds until the page moves by half a screen
       if (manualRef.current) {
         if (Math.abs(window.scrollY - manualRef.current.scrollY) < vh * 0.5) return;
@@ -588,7 +602,10 @@ export default function FloorPlan() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onViewport);
+    };
   }, []);
 
   const pick = (id: string) => {
@@ -623,7 +640,7 @@ export default function FloorPlan() {
           data-tour-point
           style={{
             position: "absolute",
-            top: `calc((100% - 100vh) * ${((k + 0.5) / (ZONES.length + 1)).toFixed(4)})`,
+            top: `calc((100% - 100svh) * ${((k + 0.5) / (ZONES.length + 1)).toFixed(4)})`,
             height: 1,
             width: 1,
           }}

@@ -96,10 +96,15 @@ export default function HeroCanvas() {
     };
     window.addEventListener("mousemove", onMouse);
 
+    let lastW = 0;
+    let lastH = 0;
     const resize = () => {
       const parent = canvas.parentElement!;
       const w = parent.clientWidth;
       const h = parent.clientHeight;
+      if (w === lastW && Math.abs(h - lastH) < 150) return;
+      lastW = w;
+      lastH = h;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       // pull back on narrow screens so the orbit fits

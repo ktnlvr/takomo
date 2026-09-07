@@ -189,9 +189,19 @@ export default function BackgroundField() {
     ink.position.z = -1;
     if (fluidOn) scene.add(ink);
 
+    let lastW = 0;
+    let lastH = 0;
     const resize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight, false);
-      camera.aspect = window.innerWidth / window.innerHeight;
+      // skip the tiny height-only changes from mobile URL-bar show/hide
+      if (
+        lastW === window.innerWidth &&
+        Math.abs(window.innerHeight - lastH) < 150
+      )
+        return;
+      lastW = window.innerWidth;
+      lastH = window.innerHeight;
+      renderer.setSize(lastW, lastH, false);
+      camera.aspect = lastW / lastH;
       camera.updateProjectionMatrix();
       const dist = camera.position.z - ink.position.z;
       const h = 2 * Math.tan(THREE.MathUtils.degToRad(22.5)) * dist;

@@ -54,7 +54,7 @@ body {
 /* ── Every visible screen is a "slide" ─────────── */
 .slide {
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -137,9 +137,15 @@ nav.topnav .links a:hover::before {
 }
 
 @media (max-width: 700px) {
+  nav.topnav .links {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   nav.topnav .links a {
     padding: 8px 8px;
     font-size: 11px;
+    white-space: nowrap;
   }
 }
 
@@ -481,6 +487,7 @@ nav.topnav .links a:hover::before {
   position: sticky;
   top: var(--menu-height);
   height: calc(100vh - var(--menu-height));
+  height: calc(100svh - var(--menu-height));
   display: flex;
   flex-direction: column;
   padding: 20px clamp(16px, 4vw, 60px) 28px;
@@ -568,21 +575,35 @@ nav.topnav .links a:hover::before {
 @media (max-width: 900px) {
   .floorplan-row {
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .floorplan-row .floorplan-canvas {
+    min-height: 32svh;
   }
 
   .zone-rail {
     width: 100%;
     flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-wrap: wrap;
+    overflow: visible;
     flex-shrink: 0;
+    gap: 4px;
   }
 
   .zone-rail .zone-row {
     flex-shrink: 0;
+    white-space: nowrap;
+    padding: 4px 8px;
   }
 
   .zone-rail .zone-detail {
+    order: -1;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .floorplan-hud {
     display: none;
   }
 }
@@ -813,6 +834,7 @@ nav.topnav .links a:hover::before {
   position: sticky;
   top: var(--menu-height);
   height: calc(100vh - var(--menu-height));
+  height: calc(100svh - var(--menu-height));
   width: 100%;
   z-index: 0;
   pointer-events: none;
@@ -828,6 +850,7 @@ nav.topnav .links a:hover::before {
   position: relative;
   z-index: 1;
   margin-top: calc(-100vh + var(--menu-height));
+  margin-top: calc(-100svh + var(--menu-height));
   width: min(52%, 640px);
   display: flex;
   flex-direction: column;
@@ -907,7 +930,7 @@ nav.topnav .links a:hover::before {
 
 @media (max-width: 900px) {
   .chapter-visual {
-    height: 34vh;
+    height: 34svh;
     z-index: 5;
     background: linear-gradient(var(--bg) 78%, transparent);
   }
@@ -919,7 +942,12 @@ nav.topnav .links a:hover::before {
   }
 
   .chapter-item {
-    min-height: 62vh;
+    min-height: 62svh;
+  }
+
+  .chapter-card {
+    margin-left: 0;
+    padding: 18px 16px;
   }
 
   .chapter-progress {
