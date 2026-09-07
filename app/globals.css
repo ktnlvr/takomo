@@ -761,6 +761,20 @@ nav.topnav .links a:hover::before {
   opacity: 1;
 }
 
+/* frosted panel behind the text so it stays legible when a metaball
+   drifts underneath */
+.chapter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px 28px;
+  margin-left: -28px;
+  border-radius: 6px;
+  background: rgba(10, 5, 8, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
 .chapter-item h3 {
   font-size: clamp(1.5rem, 2.6vw, 2.2rem);
   font-weight: 800;

@@ -222,12 +222,14 @@ export default function StickyChapter({
             data-chapter-item={i}
             className={`chapter-item ${i === active ? "active" : ""}`}
           >
-            <span className="kicker">
-              {kicker} · {String(i + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
-            </span>
-            {i === 0 && headline ? <h2 className="headline" style={{ margin: 0 }}>{headline}</h2> : null}
-            <h3>{item.title}</h3>
-            <div className="body">{item.body}</div>
+            <div className="chapter-card">
+              <span className="kicker">
+                {kicker} · {String(i + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
+              </span>
+              {i === 0 && headline ? <h2 className="headline" style={{ margin: 0 }}>{headline}</h2> : null}
+              <h3>{item.title}</h3>
+              <div className="body">{item.body}</div>
+            </div>
           </div>
         ))}
       </div>
