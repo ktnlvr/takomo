@@ -108,21 +108,43 @@ for (const [a, b] of [
 }
 
 /**
- * The tungsten piece: a dodecahedron with generously rounded edges — a
- * dense sphere clamped against the twelve face planes, smooth-shaded.
+ * The tungsten piece: a dodecahedron filleted the way CAD chamfers a cube —
+ * large flat faces kept intact, edges and corners rolled with a constant
+ * radius. Surface = the plane-intersection solid inset by r, offset back
+ * out by r; each icosphere vertex is raycast onto that surface.
  */
 export function makeTungstenCube(size = 1, mat?: THREE.Material) {
-  const geo = new THREE.IcosahedronGeometry(size * 0.62, 5);
+  const h = size * 0.52; // face-plane distance of the inset solid
+  const r = size * 0.11; // fillet radius
+  const geo = new THREE.IcosahedronGeometry(1, 6);
   const posAttr = geo.attributes.position;
   const v = new THREE.Vector3();
-  const flat = size * 0.5; // deep clamp = wide, soft bevel band
-  for (let i = 0; i < posAttr.count; i++) {
-    v.fromBufferAttribute(posAttr, i);
+
+  // signed distance to the rounded solid: distance to the inset
+  // polyhedron's exterior, minus the fillet radius
+  const sdf = (p: THREE.Vector3) => {
+    let inside = -Infinity;
+    let outSq = 0;
     for (const n of DODECA_NORMALS) {
-      const d = v.dot(n);
-      if (d > flat) v.addScaledVector(n, flat - d);
+      const d = p.dot(n) - h;
+      if (d > 0) outSq += d * d;
+      else inside = Math.max(inside, d);
     }
-    posAttr.setXYZ(i, v.x, v.y, v.z);
+    return (outSq > 0 ? Math.sqrt(outSq) : inside) - r;
+  };
+
+  for (let i = 0; i < posAttr.count; i++) {
+    v.fromBufferAttribute(posAttr, i).normalize();
+    // bisect along the ray from the origin for the surface crossing
+    let lo = 0;
+    let hi = h + r * 2;
+    for (let k = 0; k < 24; k++) {
+      const mid = (lo + hi) / 2;
+      if (sdf(v.clone().multiplyScalar(mid)) < 0) lo = mid;
+      else hi = mid;
+    }
+    const t = (lo + hi) / 2;
+    posAttr.setXYZ(i, v.x * t, v.y * t, v.z * t);
   }
   geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, mat ?? tungstenMaterial());

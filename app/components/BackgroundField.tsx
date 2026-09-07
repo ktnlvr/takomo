@@ -26,6 +26,11 @@ export default function BackgroundField() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // no cursor on touch screens, and the sim is the priciest part of this
+    // layer — keep only the drifting pieces and metaballs on mobile
+    const fluidOn =
+      window.innerWidth >= 700 && window.matchMedia("(pointer: fine)").matches;
+
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
     renderer.setPixelRatio(0.45);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -104,7 +109,7 @@ export default function BackgroundField() {
       lastMX = fx;
       lastMY = fy;
     };
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    if (fluidOn) window.addEventListener("pointermove", onPointer, { passive: true });
 
     // ── pieces ──────────────────────────────────────
     const chrome = chromeMaterial();
@@ -170,7 +175,7 @@ export default function BackgroundField() {
       new THREE.MeshBasicMaterial({ map: inkTex, transparent: true, depthWrite: false })
     );
     ink.position.z = -1;
-    scene.add(ink);
+    if (fluidOn) scene.add(ink);
 
     const resize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -191,16 +196,17 @@ export default function BackgroundField() {
       raf = requestAnimationFrame(tick);
       const t = clock.getElapsedTime();
       const scroll = window.scrollY;
-      stepFluid();
-
-      // paint the ink: alpha from dye density (texture rows are bottom-up)
-      for (let j = 0; j < GH; j++) {
-        const row = (GH - 1 - j) * GW;
-        for (let i = 0; i < GW; i++) {
-          inkData[(row + i) * 4 + 3] = Math.min(dye[j * GW + i] * 235, 215);
+      if (fluidOn) {
+        stepFluid();
+        // paint the ink: alpha from dye density (texture rows are bottom-up)
+        for (let j = 0; j < GH; j++) {
+          const row = (GH - 1 - j) * GW;
+          for (let i = 0; i < GW; i++) {
+            inkData[(row + i) * 4 + 3] = Math.min(dye[j * GW + i] * 235, 215);
+          }
         }
+        inkTex.needsUpdate = true;
       }
-      inkTex.needsUpdate = true;
 
       // metaballs wander on slow independent orbits and merge where they
       // overlap; scroll drifts the whole cloud slightly for parallax
@@ -234,7 +240,7 @@ export default function BackgroundField() {
         // near pieces feel the current more than deep ones
         const sx = THREE.MathUtils.clamp(p.obj.position.x / halfW / 2 + 0.5, 0, 1);
         const sy = THREE.MathUtils.clamp(0.5 - p.obj.position.y / halfH / 2, 0, 1);
-        const [fx, fy] = sample(sx, sy);
+        const [fx, fy] = fluidOn ? sample(sx, sy) : [0, 0];
         const feel = (1.3 - p.depth) * 0.05 * dist;
         p.flowX = p.flowX * 0.95 + fx * feel;
         p.flowY = p.flowY * 0.95 - fy * feel;
